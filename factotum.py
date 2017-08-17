@@ -31,8 +31,9 @@ def main():
    global outfile
 
    # location of handler:
-   myseq_handler = os.getcwd()
-
+   myseq_handler = "/nfs/users/nfs_f/fg6/ana/seq_factotum"
+   print(myseq_handler)
+   '''
    usage="\n %(prog)s -f full_path_to_file [options]" 
    parser = argparse.ArgumentParser(usage=usage)
  
@@ -125,7 +126,7 @@ def main():
       exe=myseq_handler+"/src/n50/n50"
       result = subprocess.check_output([exe, inputfile])
       print(result)
-
+   '''
    '''
    from Bio import SeqIO
    from statistics import mean
