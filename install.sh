@@ -7,8 +7,8 @@ fi
 mysrcs=$myseq_handler/src
 
 # srcs to compile and exes to check:
-srcs=( n50 ctgfilter ctgs_from_scaff)
-exes=( mylibs/gzstream/gzstream.o  n50/n50 ctgfilter/ctgfilter  ctgs_from_scaff/ctgs_from_scaff)
+srcs=( n50 selctgs ctgs_from_scaff)
+exes=( mylibs/gzstream/gzstream.o  n50/n50 selctgs/selctgs  ctgs_from_scaff/ctgs_from_scaff)
 
 cd $mysrcs
 mkdir -p mylibs
