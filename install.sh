@@ -5,10 +5,12 @@ if [[ $myseq_handler == "." ]]; then
     myseq_handler=`pwd`
 fi
 mysrcs=$myseq_handler/src
+mybin=$myseq_handler/bin
+mkdir -p $mybin
 
 # srcs to compile and exes to check:
 srcs=( n50 selctgs ctgs_from_scaff)
-exes=( mylibs/gzstream/gzstream.o  n50/n50 selctgs/selctgs  ctgs_from_scaff/ctgs_from_scaff)
+exes=( n50/n50 selctgs/selctgs  ctgs_from_scaff/ctgs_from_scaff)
 
 cd $mysrcs
 mkdir -p mylibs
@@ -39,29 +41,40 @@ if [[ ! -d  mylibs/gzstream ]]  || [[ ! -f mylibs/gzstream/gzstream.o ]]; then
 	else  echo  " Gzstream test failed. Exiting now"; exit; fi
     fi
 fi
-
 cd $mysrcs
 
+errs=0
+if [[ ! -f mylibs/gzstream/gzstream.o ]]; then
+    echo cannot find gzstream: Error! 
+    errs=$(($errs+1))
+fi
+
+cd $mysrcs
 for code in "${srcs[@]}"; do 
-    echo $code 
     cd $mysrcs/$code
-    make all
+
+    if [[ ! -f $code ]] || [[ $code -ot $code.cpp ]]; then 
+	make all 
+	cp $code $mybin/.
+    fi
 done
 
 
 cd $mysrcs
-echo; echo " Checking installations:"
+echo; echo " All done."; echo " Checking installations:"
 
-errs=0
-for exe in "${exes[@]}"; do
-    if [[ ! -f $exe ]]; then 
-        echo cannot find $exe: Error! 
-        errs=$(($errs+1))
+for exe in "${srcs[@]}"; do
+    if [[ ! -f $mybin/$exe ]]; then 
+
+	if  [[ ! -f $mysrcs/$exe/$exe ]]; then 
+            echo cannot find $mybin/$exe: Error! 
+            errs=$(($errs+1))
+	else
+	    cp $mysrcs/$exe/$exe $mybin/.
+	fi
     fi
 done
 if [  $errs -gt 0 ]; then echo " ****  Errors occurred! **** "; echo; exit; 
 else echo " Congrats: installation successful!"; fi
-
-
 
 
