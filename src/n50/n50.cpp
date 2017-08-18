@@ -1,4 +1,4 @@
-#include "../myincs/readfastaq.h"
+#include "readfastaq.h"
 #include <numeric> // accumulate
 
 
@@ -39,7 +39,7 @@ int calc()
   sort(rlen.begin(),  rlen.end(), std::greater<int>());
 
   int n=rlen.size();
-  int max=rlen[0];                 	
+  long int max=rlen[0];                 	
   long int  bases = accumulate(rlen.begin(), rlen.end(), 0.0);
   float mean = bases*1. / n;
 
