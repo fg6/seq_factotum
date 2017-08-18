@@ -54,7 +54,8 @@ def main():
                      help="Write selected contigs to file ---NA---")
 
    # Write new file input
-   # select and print only 1 ctg ### maybe later add list from file? ###
+   # select and print only 1 ctg ### later add list from file? ###
+   # add option write each contg in different file, but question if too many ctgs #
    select  = parser.add_argument_group('select arguments')
    select.add_argument("--ctg", dest="ctgname",
                      help="Print only this contig/read ---NA---")

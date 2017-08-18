@@ -1,4 +1,4 @@
-#include "readfastaq.h"
+#include "../myincs/readfastaq.h"
 #include <numeric> // accumulate
 
 
