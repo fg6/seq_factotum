@@ -4,6 +4,7 @@ import argparse
 import os.path
 import sys
 import subprocess
+from shutil import which
 
 """
 $ launchme.py -f reads.fastq 
@@ -31,9 +32,8 @@ def main():
    global outfile
 
    # location of handler:
-   myseq_handler = "/nfs/users/nfs_f/fg6/ana/seq_factotum"
-   print(myseq_handler)
-   '''
+   factotum_bin="/".join(which("factotum.py").split('/')[:-1])
+
    usage="\n %(prog)s -f full_path_to_file [options]" 
    parser = argparse.ArgumentParser(usage=usage)
  
@@ -64,7 +64,7 @@ def main():
                      help="Print only contigs/reads shorter than max_length---NA---")
 
    action  = parser.add_argument_group('calc arguments')
-   action.add_argument("--stat", action="store_true", help="Calculate bases,ctg_num,longest,mean,n50,n_n50")
+   action.add_argument("--stats", action="store_true", help="Calculate bases,ctg_num,longest,mean,n50,n_n50")
 
  
    if len(sys.argv)==1:
@@ -104,14 +104,12 @@ def main():
        max_length=args.max_length
        preout+="max"+"_"+max_length+"_"
 
-
-   #print(args)
    if preout=='' and args.write:
        print("\n ******* Error: re-writing the same file? No actions defined! ******* \n")
        parser.print_help()
        sys.exit(2)
        
-   if args.stat:
+   if args.stats:
        printout+='\n Calculating:'
        printout+="\n   stats  ";
        
@@ -122,11 +120,15 @@ def main():
    if args.verbose: print(printout,'\n')
 
 
-   if args.stat:
-      exe=myseq_handler+"/src/n50/n50"
-      result = subprocess.check_output([exe, inputfile])
-      print(result)
-   '''
+   if args.stats:
+      exe=factotum_bin+"/n50"
+      command = exe + " " + inputfile
+      print("\n",subprocess.check_output([exe, inputfile]).decode('utf-8').strip())
+
+   
+
+
+
    '''
    from Bio import SeqIO
    from statistics import mean
@@ -148,7 +150,7 @@ def main():
 
 
 
-#### My functions ####
+#### My functions: only used with internal calcs: obsolete ####
 
 def filetype_(filename):
     global outfile
