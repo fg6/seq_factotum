@@ -226,8 +226,6 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
 	  if(readseq)rseq.push_back(lseq);
 	  if(lcomment.size())rcomment.push_back(lcomment);
 	}      
-
-
       }
       stop=0;
     }
