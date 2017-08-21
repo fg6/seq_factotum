@@ -28,37 +28,39 @@ def main():
    global outfile
    global write
 
+   write=0
+
    # location of handler:
    factotum_bin="/".join(which("factotum.py").split('/')[:-1])
 
    usage="\n %(prog)s -f full_path_to_file [options]" 
 
    parser = argparse.ArgumentParser(usage=usage)
-   parser.add_argument("-v", action="store_true", dest="verbose", default=False,
+   parser.add_argument("-q", action="store_true", dest="quite", default=False,
                        help="don't print status messages to stdout")
 
    required = parser.add_argument_group('Required Arguments')
    required.add_argument("-f", dest="filename",
                          help="full path to a fasta/fastq file") 
- 
+
    # select and print only 1 ctg ### later add list from file? ###
    # add option write each contg in different file, but question if too many ctgs #
+   # jolly: add list chromosomes up to 20, larger and smaller
+   # jolly: when selecting, print some stats: how many printed, how many excluded...
    action  = parser.add_argument_group('Action arguments:')
    action.add_argument("--stats", action="store_true", help="Print stats: bases, ctg_num, longest, mean, n50, n_n50")
    action.add_argument("--break", dest="scaffbreak", action="store_true",
                      help="Break scaffolds @>3Ns, print ctgs to file and print stats")
    action.add_argument("--fq2fa", dest="fq2fa",  action="store_true", default=False,
-                     help="Write fasta from fastq ---NA---")
+                     help="Write fasta from fastq")
    action.add_argument("--ctg", dest="ctgname",
-                     help="Print only this contig/read ---NA---")
+                     help="Write only this contig/read")
    action.add_argument("--min", dest="min_length", type=int,
-                     help="Print only contigs/reads longer than min_length  ---NA--- ")
+                     help="Write only contigs/reads longer than min_length")
    action.add_argument("--max", dest="max_length", type=int,
-                     help="Print only contigs/reads shorter than max_length---NA---")
+                     help="Write only contigs/reads shorter than max_length")
 
- 
- 
- 
+  
    if len(sys.argv)==1:
        parser.print_help()
        sys.exit(1)
@@ -68,62 +70,65 @@ def main():
    if not os.path.exists(args.filename): 
         print("Sorry, file ", args.filename, "does not exists")
         sys.exit(2)
-   inputfile=args.filename
+ 
+
 
    ##################################
-   ######## Optional arguments ######
+   ###########  Arguments ###########
    ##################################
    printout=''
-   preout=''  # prefix for file name
-   if args.fq2fa: # or args.write:
-       printout='\n Writing to file'
-       if args.fq2fa:
-           printout+="\n   Change format: fasta from fastq";
-           fq2fa=args.fq2fa
-           preout+="fq2fa_"
-   
-   ##################################
-   ######## Select arguments ########
-   ##################################
-   write=0
+   preout=''  # prefix for output file name
+   if args.fq2fa:
+      write=1
+      printout+="\n  Changing format: fasta from fastq";
+      fq2fa=args.fq2fa
+      preout+="fq2fa_"
+     
    if any(f for f in (args.ctgname, args.min_length, max_length)): 
        printout+='\n Contig Selection:'
-
    if args.ctgname is not None:
-       printout+="\n   Write only contig/read named: " + args.ctgname;
-       ctgname=args.ctgname
+       printout+="\n  Writing only contig/read named: " + args.ctgname;
+       ctgname=args.ctgname 
        preout+=ctgname+"_"
        write=1
    if args.min_length is not None:
-       printout+="\n   Write only contig/reads longer than "+str(args.min_length);
+       printout+="\n  Writing only contig/reads longer than "+str(args.min_length);
        min_length=args.min_length
-       preout+="min"+"_"+min_length+"_"
+       preout+="min" + "_" + str(min_length) + "_"
        write=1
    if args.max_length is not None:
-       printout+="\n   Write only contig/reads shorter than " + str(args.max_length);
+       printout+="\n  Writing only contig/reads shorter than " + str(args.max_length);
        max_length=args.max_length
-       preout+="max"+"_"+max_length+"_"
+       preout+="max" +"_" + str(max_length) + "_"
        write=1
    if args.scaffbreak:
-      printout+="\n Breaking scaffolds @ 3Ns";
+      printout+="\n  Breaking scaffolds @ 3Ns";
       preout+="ctgs"+"_"
       write=1
-
-
+   if args.stats:
+      printout+='\n Calculating stats'
+      
+   ##################################
+   ######## output file name ########
+   ##################################
+   inputfile=args.filename
    filename = os.path.basename(inputfile)
    file_type = filetype_(filename)
    outfile=preout+outfile
-   
    if write and filename == outfile:
        print("\n ******* Error: re-writing the same file! Exiting now ******* \n")
-       sys.exit(2)       
-   if args.stats:
-       printout+='\n Calculating:'
-       printout+="\n   stats  ";
+       sys.exit(2)
+   elif write:
+      printout+='\n  Output file: ' + outfile
+      
+
+   ##################################
+   ######### some  printout #########
+   ##################################
    if printout == '':
        print("\n *** Nothing to be done. ***\n")
        sys.exit(2)
-   if args.verbose: print(printout,'\n')
+   elif not args.quite: print(printout) #,'\n')
 
 
    ###################################
@@ -138,14 +143,16 @@ def main():
       print("\n",subprocess.check_output([exe, inputfile]).decode('utf-8').strip())
       
 
+   if args.ctgname or args.min_length or args.max_length or args.fq2fa:
+      exe=factotum_bin+"/jolly"
+      print("\n",subprocess.check_output([exe, inputfile, outfile, out_type, str(min_length), 
+                                          str(max_length), ctgname]).decode('utf-8').strip())
 
-   
 
 
 def filetype_(filename):
     global outfile
     global out_type
-
 
     typefasta=('fasta','fsa','fa')
     typefastq=('fastq','fq')
@@ -169,10 +176,14 @@ def filetype_(filename):
         file_type='fasta'
         outfile=basename[0]+'.fasta'
         out_type='fasta'
+        if fq2fa:
+           print("Error: file is already a fasta!")
+           sys.exit(2)
     else:
         print("\n  Error: I don't recognize the input file extension,\n   please select a fasta or fastq file only!")
         return 1
     
+
     return file_type
 
 
