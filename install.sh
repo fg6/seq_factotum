@@ -76,4 +76,4 @@ for exe in "${srcs[@]}"; do
 done
 
 if [  $errs -gt 0 ]; then echo " ****  Errors occurred! **** "; echo; exit; 
-else echo " Congrats: installation successful!"; fi
+else echo " Congrats: installations successful!"; fi
