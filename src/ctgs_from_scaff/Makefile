@@ -4,7 +4,7 @@
 CC=g++
 SOURCES= ctgs_from_scaff.cpp 
 
-INCLUDES = -I../mylibs/gzstream/
+INCLUDES = -I../mylibs/gzstream/ -I../myincs
 LIBS =  
 
 CFLAGS= -c  $(INCLUDES) 
