@@ -2,6 +2,9 @@
 #include <algorithm>    // sort, reverse
 #include <gzstream.h>
 #include <vector>  //setprecision
+#include <sstream>
+#include <numeric> // accumulate
+#include <tuple>
 
 
 using std::cout;
@@ -9,12 +12,16 @@ using std::endl;
 using std::vector;
 using std::string;
 
-static gzFile fp;
+static gzFile fp;  // input file
+static std::ofstream outfile;  // output_file
+
 static  vector<int> rlen;
 static  vector<string> rseq;
 static  vector<string> rqual;
 static  vector<string> rname;
 static  vector<string> rcomment;
+
+static  vector<int> ctgrlen;
 
 
 // ---------------------------------------- //
@@ -236,3 +243,69 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
   return 0;
 }
 
+
+
+
+
+// numeric to string
+template <class T>
+inline std::string to_string (const T& t)
+{
+  std::stringstream ss;
+  ss << t;
+  return ss.str();
+}
+// string of numbers to int 
+template <class T1>
+inline int to_int (const T1& t)
+{
+  int ii;
+  std::stringstream ss(t);
+  ss >> ii;
+  return ii;
+}
+// string of numbers to int 
+template <class T2>
+inline int to_float (const T2& t)
+{
+  float ii;
+  std::stringstream ss(t);
+  ss >> ii;
+  float rr=ii*100.;
+  return rr;
+}
+
+
+// ---------------------------------------- //
+std::tuple<long int, int, float, long int, long int, int>  calcstats(vector<int> lengths)
+// ---------------------------------------- //
+{
+  sort(lengths.begin(),  lengths.end(), std::greater<int>());
+
+  int n=lengths.size();
+  long int max=lengths[0];                 	
+  long int  bases = accumulate(lengths.begin(), lengths.end(), 0.0);
+  float mean = bases*1. / n;
+
+  int n50=0;
+  long int l50=0;
+  int done=0;
+  long int t50=0;
+  int ii=0;
+  while(done<1){
+    t50+=lengths[ii];
+    if(t50 > bases*0.5) 
+      done=1;
+    ii++;
+   }
+
+  n50=ii;
+  l50=lengths[n50-1];  //counting from 0
+  
+  if(0)
+    std::cout << std::fixed << std::setprecision(0) <<  "Bases= " << bases << " contigs= "<< n << " mean_length= " 
+	<< mean << " longest= " << max << " N50= "<< l50 << " n= " << n50   //counting from 1
+	<< std::endl;  
+
+  return std::make_tuple(bases,n,mean, max, l50, n50);
+}
