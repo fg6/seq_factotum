@@ -279,6 +279,7 @@ inline int to_float (const T2& t)
 // ---------------------------------------- //
 std::tuple<long int, int, float, long int, long int, int>  calcstats(vector<int> lengths)
 // ---------------------------------------- //
+// used by n50.cpp, 
 {
   sort(lengths.begin(),  lengths.end(), std::greater<int>());
 
