@@ -1,14 +1,14 @@
-#include "/nfs/users/nfs_f/fg6/ana/cpp/myinclude/macro.h"
-#include "/nfs/users/nfs_f/fg6/ana/cpp/myinclude/readnwritefaq.h"
+#include "readfastaq.h"
 
-int break_scaffolds(void);
+int break_scaffolds(int write);
+static  vector<int> ctglen;
 
 int main(int argc, char *argv[])
 { 
 
-  if (argc == 1) {
+  if (argc < 3) {
    fprintf(stderr, "Breaks scaffolds at site with more than 3 Ns\n", argv[0]);
-   fprintf(stderr, "Usage: %s <reads.fa>\n", argv[0]);
+   fprintf(stderr, "Usage: %s <reads.fa>  <command>\n", argv[0]);
    return 1;
   }	
   if((fp = gzopen(argv[1],"r")) == NULL){ 
@@ -16,46 +16,63 @@ int main(int argc, char *argv[])
     return 1;
   }
   
-  int err=1;
+  string command = argv[2];   
+  //if(argc > 3) ctg=argv[3];          
+  //if(argc > 4) otype=argv[4];   
+
+  int err=0;
   int saveinfo=1;
   int readseq=1;
+  int write=0;
   string otype="same";
+
+  if(command == "break")
+    write=1;
+    
+ 
+  // Read file //
   int isfq=fasttype(argv[1]);
   if(otype=="fastq" && isfq) otype="same";
   if(!isfq){
-    err=readfasta(argv[1],saveinfo,"",readseq); 
+    err=readfasta(argv[1],saveinfo,readseq); 
   }else{
-    err=readfastq(argv[1],saveinfo,"",readseq); 
+    err=readfastq(argv[1],saveinfo,readseq); 
   }
   if(err) {
-    cout << " Error reading file "<< argv[1] << endl;
+    cout << " Error while reading file "<< argv[1] << endl;
     return 1;
   }
+  
 
-
+  //if(command == "break"){  // break scaffolds //
   string myname = "ctgs.fasta"; 
-  int write=1;
-  if(write)myfile.open(myname.c_str());
-  err=break_scaffolds();
-  if(write) myfile.close();
-
+  if(write)outfile.open(myname.c_str());
+  err=break_scaffolds(write);
+  if(write) outfile.close();
+  
   if(err) {
     cout << " Error while breaking scaffolds " << endl;
     return 1;
+  }else{
+
   }
+
+  
+  //}
 
   return 0;
 }
 
 // ---------------------------------------- //
-int break_scaffolds()
+int break_scaffolds(int write)
 // ---------------------------------------- //
 {
   char out[5]={">"};
   int scafcounts=0;
   int pri=0;
+  vector<int> ctglen;
 
-  for (unsigned i=0; i < rseq.size(); i++) { // loop over scaffold
+  for (unsigned i=0; i < rseq.size(); i++) { // loop over scaffolds
   
     string s = rseq[i];
     string name = rname[i];
@@ -65,9 +82,10 @@ int break_scaffolds()
     auto start = 0U;
     auto end = s.find(delim);
     int l=0;
-    if (end == std::string::npos){  // if no >= 10 Ns
-      myfile <<  out[0] << name << " ctg_0_starting_at_pos_1" << endl;
-      myfile << s << endl;
+    if (end == std::string::npos){  // if no >= 3 Ns
+      if(write) outfile <<  out[0] << name << " ctg_0_starting_at_pos_1" << endl;
+      if(write) outfile << s << endl;
+      ctglen.push_back(s.size());
     }else{  // if there are Ns:
       scafcounts++;
       while (end != std::string::npos)  // split scaffold at any group of Ns:
@@ -77,21 +95,19 @@ int break_scaffolds()
 	  if(!contig.empty()){
 	    l++;
 	    string thisname = name + "_ctg_" + to_string(l) + "_starting_at_pos_" + to_string(start+1);
-	    //cout << contig << endl;
 	    if(start!=1){ // not for the first part of the contig
 	      for (int mm=0; mm<contig.size(); mm++){
 		if(contig[mm]=='N'){   
 		  moreNs++;   // can at max be 2, otherwise is already taken out by the delim.length
-		  //cout << contig[mm] << endl;
 		}else{
 		  contig.erase(0, moreNs);
-		  //cout << " found " << moreNs << " more Ns" << endl;
 		  break;
 		}
 	      }
 	    }
-	    myfile <<  out[0] << thisname << endl;
-	    myfile << contig << endl;
+	    if(write) outfile <<  out[0] << thisname << endl;
+	    if(write) outfile << contig << endl;
+	    ctglen.push_back(contig.size());
 	  }
 	  start = end + delim.length();
 	  end = s.find(delim, start);
@@ -101,26 +117,50 @@ int break_scaffolds()
 	l++;
 	string contig= s.substr(start, end - start);
 	int moreNs=0;
-	//cout << contig << endl;
 	for (int mm=0; mm<contig.size(); mm++){
 	  if(contig[mm]=='N'){
 	    moreNs++;
-	    //cout << contig[mm] << endl;
 	  }else{
 	    contig.erase(0, moreNs);
 	    start=start+moreNs;
-	    //cout << " found " << moreNs << " more Ns" << endl;
 	    break;
 	  }
 	}
 	string thisname = name + "_ctg_" + to_string(l) + "_starting_at_pos_" + to_string(start+1);
-	myfile <<  out[0] << thisname << endl;
-	myfile << contig << endl;
+	if(write) outfile <<  out[0] << thisname << endl;
+	if(write) outfile << contig << endl;
+	ctglen.push_back(contig.size());
       }
     }
   }
-  
 
-  cout << " I've found " << scafcounts << " scaffold(s) to split" << endl;
+
+
+  if(scafcounts){
+    cout << "\nI've found " << scafcounts << " breaking points of at least 3 Ns";
+    if(write) cout << " (contigs written to ctgs.fasta) " << endl;
+    else cout << endl;
+  }else{
+    cout << "\nFound no scaffolds to split!" << endl;
+  }
+
+  int n, n50;
+  long int max, bases, l50;
+  float mean;
+  
+  cout << "\nScaffold stats:" << endl;
+  std::tie(bases,n,mean, max, l50, n50)= calcstats(rlen);  
+  cout << std::fixed << std::setprecision(0) <<  " Bases= " << bases << " contigs= "<< n << " mean_length= " 
+       << mean << " longest= " << max << " N50= "<< l50 << " n= " << n50   //counting from 1
+       << std::endl;  
+  
+  if(scafcounts){
+    cout << "\nContig stats:" << endl;
+    std::tie(bases,n,mean, max, l50, n50)= calcstats(ctglen);  
+    cout << std::fixed << std::setprecision(0) <<  " Bases= " << bases << " contigs= "<< n << " mean_length= " 
+	 << mean << " longest= " << max << " N50= "<< l50 << " n= " << n50   //counting from 1
+	 << std::endl;  
+  }
   return 0;
 }
+
