@@ -1,3 +1,4 @@
+src/myincs/readfastaq_first.h
 bin/ctgs_from_scaff  
 bin/n50  
 bin/selctgs
