@@ -57,6 +57,7 @@ int break_scaffolds(int write)
   int scafcounts=0;
   int pri=0;
   vector<int> ctglen;
+  int cc=0;
 
   for (unsigned i=0; i < rseq.size(); i++) { // loop over scaffolds
   
@@ -72,6 +73,7 @@ int break_scaffolds(int write)
       if(write) outfile <<  out[0] << name << " ctg_0_starting_at_pos_1" << endl;
       if(write) outfile << s << endl;
       ctglen.push_back(s.size());
+      //cc++;
     }else{  // if there are Ns:
       scafcounts++;
       while (end != std::string::npos)  // split scaffold at any group of Ns:
@@ -94,6 +96,7 @@ int break_scaffolds(int write)
 	    if(write) outfile <<  out[0] << thisname << endl;
 	    if(write) outfile << contig << endl;
 	    ctglen.push_back(contig.size());
+	    //cc++;
 	  }
 	  start = end + delim.length();
 	  end = s.find(delim, start);
@@ -116,14 +119,15 @@ int break_scaffolds(int write)
 	if(write) outfile <<  out[0] << thisname << endl;
 	if(write) outfile << contig << endl;
 	ctglen.push_back(contig.size());
+	//cc++;
       }
     }
   }
 
-
+  //cout << cc << " " << ctglen.size() << endl;
 
   if(scafcounts){
-    cout << "\nI've found " << scafcounts << " breaking points of at least 3 Ns";
+    cout << "\nI've found " << scafcounts << " scaffolds with breaking points of at least 3 Ns";
     if(write) cout << " (contigs written to ctgs.fasta) " << endl;
     else cout << endl;
   }else{
