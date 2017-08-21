@@ -16,36 +16,25 @@ int main(int argc, char *argv[])
     return 1;
   }
   
-  string command = argv[2];   
-  //if(argc > 3) ctg=argv[3];          
-  //if(argc > 4) otype=argv[4];   
-
   int err=0;
   int saveinfo=1;
   int readseq=1;
-  int write=0;
-  string otype="same";
+  int write=1;
 
-  if(command == "break")
-    write=1;
-    
- 
   // Read file //
   int isfq=fasttype(argv[1]);
-  if(otype=="fastq" && isfq) otype="same";
   if(!isfq){
     err=readfasta(argv[1],saveinfo,readseq); 
   }else{
-    err=readfastq(argv[1],saveinfo,readseq); 
+    cout << " Error: scaffolds-breaking only available for fasta file! " << endl;
+    return 1;
   }
   if(err) {
     cout << " Error while reading file "<< argv[1] << endl;
     return 1;
   }
   
-
-  //if(command == "break"){  // break scaffolds //
-  string myname = "ctgs.fasta"; 
+  string myname = argv[2]; 
   if(write)outfile.open(myname.c_str());
   err=break_scaffolds(write);
   if(write) outfile.close();
@@ -56,9 +45,6 @@ int main(int argc, char *argv[])
   }else{
 
   }
-
-  
-  //}
 
   return 0;
 }

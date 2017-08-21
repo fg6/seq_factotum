@@ -6,10 +6,6 @@ import sys
 import subprocess
 from shutil import which
 
-"""
-$ launchme.py -f reads.fastq 
-"""
-
 inputfile = '' 
 ctgname= ''
 min_length=0
@@ -30,43 +26,38 @@ def main():
    global max_length
    global fq2fa
    global outfile
+   global write
 
    # location of handler:
    factotum_bin="/".join(which("factotum.py").split('/')[:-1])
 
    usage="\n %(prog)s -f full_path_to_file [options]" 
+
    parser = argparse.ArgumentParser(usage=usage)
- 
+   parser.add_argument("-v", action="store_true", dest="verbose", default=False,
+                       help="don't print status messages to stdout")
 
    required = parser.add_argument_group('Required Arguments')
    required.add_argument("-f", dest="filename",
-                         help="full path to a fasta/fastq file") #metavar="FILE", 
-                         #required=True)
-   parser.add_argument("-v", 
-                  action="store_true", dest="verbose", default=False,
-                  help="don't print status messages to stdout")
+                         help="full path to a fasta/fastq file") 
  
-
-   writing = parser.add_argument_group('writing arguments')
-   writing.add_argument("--fq2fa", dest="fq2fa",  action="store_true", default=False,
-                     help="Write fasta from fastq ---NA---")
-   writing.add_argument("--write", dest="write",  action="store_true", default=False,
-                     help="Write selected contigs to file ---NA---")
-
-   # Write new file input
    # select and print only 1 ctg ### later add list from file? ###
    # add option write each contg in different file, but question if too many ctgs #
-   select  = parser.add_argument_group('select arguments')
-   select.add_argument("--ctg", dest="ctgname",
+   action  = parser.add_argument_group('Action arguments:')
+   action.add_argument("--stats", action="store_true", help="Print stats: bases, ctg_num, longest, mean, n50, n_n50")
+   action.add_argument("--break", dest="scaffbreak", action="store_true",
+                     help="Break scaffolds @>3Ns, print ctgs to file and print stats")
+   action.add_argument("--fq2fa", dest="fq2fa",  action="store_true", default=False,
+                     help="Write fasta from fastq ---NA---")
+   action.add_argument("--ctg", dest="ctgname",
                      help="Print only this contig/read ---NA---")
-   select.add_argument("--min", dest="min_length", type=int,
+   action.add_argument("--min", dest="min_length", type=int,
                      help="Print only contigs/reads longer than min_length  ---NA--- ")
-   select.add_argument("--max", dest="max_length", type=int,
+   action.add_argument("--max", dest="max_length", type=int,
                      help="Print only contigs/reads shorter than max_length---NA---")
 
-   action  = parser.add_argument_group('calc arguments')
-   action.add_argument("--stats", action="store_true", help="Calculate bases,ctg_num,longest,mean,n50,n_n50")
-
+ 
+ 
  
    if len(sys.argv)==1:
        parser.print_help()
@@ -79,79 +70,77 @@ def main():
         sys.exit(2)
    inputfile=args.filename
 
-   ## Optional arguments ##
+   ##################################
+   ######## Optional arguments ######
+   ##################################
    printout=''
    preout=''  # prefix for file name
-   if args.fq2fa or args.write:
+   if args.fq2fa: # or args.write:
        printout='\n Writing to file'
        if args.fq2fa:
            printout+="\n   Change format: fasta from fastq";
            fq2fa=args.fq2fa
            preout+="fq2fa_"
    
-   #### Selection arguments ####
+   ##################################
+   ######## Select arguments ########
+   ##################################
+   write=0
    if any(f for f in (args.ctgname, args.min_length, max_length)): 
        printout+='\n Contig Selection:'
+
    if args.ctgname is not None:
        printout+="\n   Write only contig/read named: " + args.ctgname;
        ctgname=args.ctgname
        preout+=ctgname+"_"
+       write=1
    if args.min_length is not None:
        printout+="\n   Write only contig/reads longer than "+str(args.min_length);
        min_length=args.min_length
        preout+="min"+"_"+min_length+"_"
+       write=1
    if args.max_length is not None:
        printout+="\n   Write only contig/reads shorter than " + str(args.max_length);
        max_length=args.max_length
        preout+="max"+"_"+max_length+"_"
+       write=1
+   if args.scaffbreak:
+      printout+="\n Breaking scaffolds @ 3Ns";
+      preout+="ctgs"+"_"
+      write=1
 
-   if preout=='' and args.write:
-       print("\n ******* Error: re-writing the same file? No actions defined! ******* \n")
-       parser.print_help()
-       sys.exit(2)
-       
+
+   filename = os.path.basename(inputfile)
+   file_type = filetype_(filename)
+   outfile=preout+outfile
+   
+   if write and filename == outfile:
+       print("\n ******* Error: re-writing the same file! Exiting now ******* \n")
+       sys.exit(2)       
    if args.stats:
        printout+='\n Calculating:'
        printout+="\n   stats  ";
-       
    if printout == '':
        print("\n *** Nothing to be done. ***\n")
        sys.exit(2)
-
    if args.verbose: print(printout,'\n')
 
 
+   ###################################
+   ############# Actions #############
+   ###################################
+   if args.scaffbreak:
+      exe=factotum_bin+"/ctgs_from_scaff"
+      print("\n",subprocess.check_output([exe, inputfile, outfile]).decode('utf-8').strip())
+      
    if args.stats:
       exe=factotum_bin+"/n50"
-      command = exe + " " + inputfile
       print("\n",subprocess.check_output([exe, inputfile]).decode('utf-8').strip())
+      
+
 
    
 
-
-
-   '''
-   from Bio import SeqIO
-   from statistics import mean
-   read_ok=read();
-   if read_ok > 0:
-       sys.exit(2)
-
-   if args.stat:
-       stats_ok=stats()
-       
-   # write to file
-   if args.write or args.fq2fa:
-       outfile=preout+outfile
-       write_ok=write()
-       if write_ok > 0:
-           sys.exit(2)
-   '''        
-
-
-
-
-#### My functions: only used with internal calcs: obsolete ####
 
 def filetype_(filename):
     global outfile
@@ -186,12 +175,38 @@ def filetype_(filename):
     
     return file_type
 
+
+
+
+
+
+
+#### My functions: only used with internal calcs: obsolete ####
+
+    '''
+    from Bio import SeqIO
+    from statistics import mean
+    read_ok=read();
+    if read_ok > 0:
+    sys.exit(2)
+    
+    if args.stat:
+    stats_ok=stats()
+    
+    # write to file
+    if args.write or args.fq2fa:
+    outfile=preout+outfile
+    write_ok=write()
+    if write_ok > 0:
+    sys.exit(2)
+    '''        
+
 def read():
     global contigs
     global filename
 
     filename = os.path.basename(inputfile)
-    file_type = filetype_(filename)
+    file_type = filetype_(filename) 
     
     # file extension not recognized:
     if file_type == 1:

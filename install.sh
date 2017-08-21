@@ -64,16 +64,17 @@ cd $mysrcs
 echo; echo " All done."; echo " Checking installations:"
 
 for exe in "${srcs[@]}"; do
-    if [[ ! -f $mybin/$exe ]]; then 
+    if [[ ! -f $mybin/$exe ]]  ||  [[ $mybin/$exe -ot $mysrcs/$exe/$exe ]]; then 
 
 	if  [[ ! -f $mysrcs/$exe/$exe ]]; then 
             echo cannot find $mybin/$exe: Error! 
             errs=$(($errs+1))
-	else
+	else 
 	    cp $mysrcs/$exe/$exe $mybin/.
 	fi
     fi
 done
 
+PATH=$mybin/:$PATH
 if [  $errs -gt 0 ]; then echo " ****  Errors occurred! **** "; echo; exit; 
 else echo " Congrats: installations successful!"; fi
