@@ -7,9 +7,8 @@ fi
 mysrcs=$myseq_handler/src
 mybin=$myseq_handler/bin
 
-# srcs to compile and exes to check:
-srcs=( n50 selctgs ctgs_from_scaff )
-exes=( n50/n50 selctgs/selctgs  ctgs_from_scaff/ctgs_from_scaff )
+# srcs to compile:
+srcs=( n50 ctgs_from_scaff jolly )
 
 cd $mysrcs
 mkdir -p mylibs
@@ -52,7 +51,7 @@ cd $mysrcs
 for code in "${srcs[@]}"; do 
     cd $mysrcs/$code
   
-    if [[ ! -f $code ]] || [[ $code -ot $code.cpp ]]; then 
+    if [[ ! -f $code ]] || [[ $code -ot $code.cpp ]] || [[ $code -ot $mysrcs/myincs/readfastaq.h ]]; then 
 	make all 
 	rm -f $mybin/$code
 	cp $code $mybin/.

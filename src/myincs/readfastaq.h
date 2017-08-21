@@ -44,7 +44,7 @@ int fasttype(char* file)
 
 
 // ---------------------------------------- //
-int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, string selctg="")
+int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="")
 // ---------------------------------------- //
 { 
   igzstream infile(file);
@@ -80,7 +80,10 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
       nseq++;
 
       if(nseq>1){ // previous
-	if(seqlen>=minlen){
+	
+	lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
+	if(  (seqlen>=minlen) && (selctg.size()==0 ||   !selctg.compare(lname) )
+	     && (maxlen==0 || seqlen < maxlen) ){
 
 	  if(saveinfo){
 	    rname.push_back(lname);
@@ -89,16 +92,29 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
 	    if(readseq)rseq.push_back(lseq);
 	    if(readseq)rqual.push_back(lqual);
 	  }
-
-
-	  //cout << fa << lname ;
-	  // if(lcomment.size()) cout << lcomment <<endl;
-	  // else cout << endl;
-	  
-	  
+  
+	  //   ****** Write to file ******* //
+	  if(otype.size()){
+	    if(otype!="same"){ // write fasta
+	      outfile << fa << lname ;
+	      if(lcomment.size()) outfile << " " << lcomment <<endl;
+	      else outfile << endl;
+	      outfile << lseq << endl;
+	    }else if(lqual.size()){
+	      outfile << fq << lname ;
+	      if(lcomment.size()) outfile << " " << lcomment <<endl;
+	      else outfile << endl;
+	      outfile << lseq << endl;
+	      outfile << "+" << endl << lqual << endl;
+	    }else{
+	      cout << " Error! trying to write a fastq but quality string is empty! " << endl;
+	      return 1;
+	    }
+	  }
 	  if(quallen != seqlen)
 	    cout << " ERROR! seq length different from quality lenght!! " << endl;
-	}
+	}// minlen cut
+
       }
       
       size_t ns=0;
@@ -137,7 +153,9 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
  
     // EOF
     if(infile.eof()){ // previous
-      if(seqlen>=minlen){
+      lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
+      if(  (seqlen>=minlen) && (selctg.size()==0 ||  !selctg.compare(lname) )
+	   && (maxlen==0 || seqlen < maxlen) ){
 
 	if(saveinfo){
 	  rname.push_back(lname);
@@ -145,6 +163,25 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
 	  rlen.push_back(seqlen);
 	  if(readseq)rseq.push_back(lseq);
 	  if(readseq)rqual.push_back(lqual);
+	}
+
+	//   ****** Write to file ******* //
+	if(otype.size()){
+	  if(otype!="same"){ // write fasta
+	    outfile << fa << lname ;
+	    if(lcomment.size()) outfile << " " << lcomment <<endl;
+	    else outfile << endl;
+	    outfile << lseq << endl;
+	  }else if(lqual.size()){
+	    outfile << fq << lname ;
+	    if(lcomment.size()) outfile << " " << lcomment <<endl;
+	    else outfile << endl;
+	    outfile << lseq << endl;
+	    outfile << "+" << endl << lqual << endl;
+	  }else{
+	    cout << " Error! trying to write a fastq but quality string is empty! " << endl;
+	    return 1;
+	  }
 	}
 	if(quallen != seqlen)
 	  cout << " ERROR! seq length different from quality lenght!! " << endl;
@@ -160,7 +197,7 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
 
 
 // ---------------------------------------- //
-int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, string selctg="")
+int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="")
 // ---------------------------------------- //
 { 
   igzstream infile(file);
@@ -187,7 +224,16 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
       nseq++;
 
       if(nseq>1){ // previous
-	if(seqlen>=minlen){
+	lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
+
+	if(0)cout << minlen << " " << selctg.size() << " " << selctg
+	     << " " << maxlen << " " << seqlen << endl;
+	if(0)cout << (seqlen>=minlen) << " " <<  
+	       ( selctg.size()==0 || selctg.compare(lname) )  << " " <<  
+	       ( maxlen==0 || seqlen < maxlen ) << " " << selctg.compare(lname) << endl;
+
+	if(  (seqlen>=minlen) && ( selctg.size()==0 || !selctg.compare(lname) ) 
+	     && ( maxlen==0 || seqlen < maxlen ) ){
 
 	  if(saveinfo){
 	    rname.push_back(lname);
@@ -196,6 +242,13 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
 	    if(lcomment.size())rcomment.push_back(lcomment);
 	  }
 
+	  //   ****** Write to file ******* //
+	  if(otype.size()){
+	    outfile << fa << lname ;
+	    if(lcomment.size()) outfile << " " << lcomment <<endl;
+	    else outfile << endl;
+	    outfile << lseq << endl;
+	  }
 
 	}
       }
@@ -224,20 +277,28 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, string se
  
     // EOF
     if(infile.eof()){ // previous
-      if(seqlen>=minlen){
-
+      lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
+      if(  (seqlen>=minlen) && (selctg.size()==0 ||  !selctg.compare(lname) )
+	   && (maxlen==0 || seqlen < maxlen) ){
 
 	if(saveinfo){
 	  rname.push_back(lname);
 	  rlen.push_back(seqlen);
 	  if(readseq)rseq.push_back(lseq);
 	  if(lcomment.size())rcomment.push_back(lcomment);
-	}      
+	}
+
+	//   ****** Write to file ******* //
+	if(otype.size()){
+	  outfile << fa << lname ;
+	  if(lcomment.size()) outfile << " " << lcomment <<endl;
+	  else outfile << endl;
+	  outfile << lseq << endl;
+	}
+    
       }
       stop=0;
     }
-
-
   }//read loop
  
   return 0;
