@@ -1,6 +1,6 @@
 src/myincs/readfastaq_first.h
 bin/ctgs_from_scaff
-bin/n50  
+bin/50
 bin/selctgs
 src/mylibs/*
 src/n50/n50
