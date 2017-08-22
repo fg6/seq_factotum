@@ -1,10 +1,7 @@
-src/myincs/readfastaq_first.h
 bin/ctgs_from_scaff
-bin/selctgs
 bin/n50
 bin/jolly
 src/jolly/jolly
 src/mylibs/*
 src/n50/n50
-src/selctgs/selctgs
 src/ctgs_from_scaff/ctgs_from_scaff
