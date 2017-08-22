@@ -31,5 +31,5 @@ Download repository and install utilities/compile tools:
 	$ git clone https://github.com/fg6/seq_factotum.git
 	$ cd seq_factotum
 	$ ./install.sh
-	$ myfactotum=`pwd`; PATH=./bin/:$PATH   
+	$ myfactotum=`pwd`; PATH=$myfactotum/bin/:$PATH   
     $ factotum.py -f file.fasta --stats
