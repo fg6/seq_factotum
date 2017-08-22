@@ -1,4 +1,5 @@
 #include "readfastaq.h"
+#include <locale>
 
 
 int main(int argc, char *argv[])
@@ -25,14 +26,17 @@ int main(int argc, char *argv[])
      err=readfastq(argv[1],1);
 
   if(!err){
+    std::stringstream ss;
+    ss.imbue(std::locale(""));
     int n, n50;
     long int max, bases, l50;
     float mean;
 
     std::tie(bases,n,mean, max, l50, n50)= calcstats(rlen);  
-    std::cout << std::fixed << std::setprecision(0) <<  "Bases= " << bases << " contigs= "<< n << " mean_length= " 
-	<< mean << " longest= " << max << " N50= "<< l50 << " n= " << n50   //counting from 1
+    ss << std::fixed << std::setprecision(0) <<  "Bases= " << bases << " Seqs= "<< n << " Mean_length= " 
+	<< mean << " Longest= " << max << " N50= "<< l50 << " N_n50= " << n50   //counting from 1
 	<< std::endl;  
+    cout << ss.str() << endl;
   }
   return 0;
 }

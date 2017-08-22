@@ -21,6 +21,7 @@ static  vector<string> rqual;
 static  vector<string> rname;
 static  vector<string> rcomment;
 
+static  vector<int> excluded;
 static  vector<int> ctgrlen;
 
 
@@ -44,7 +45,7 @@ int fasttype(char* file)
 
 
 // ---------------------------------------- //
-int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="")
+int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="")
 // ---------------------------------------- //
 { 
   igzstream infile(file);
@@ -56,7 +57,7 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxle
  
   rlen.reserve(100000);
   rname.reserve(100000);
-  if(readseq){
+  if(saveseq){
     rseq.reserve(100000);
     rqual.reserve(100000);
   }
@@ -89,12 +90,12 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxle
 	    rname.push_back(lname);
 	    if(lcomment.size())rcomment.push_back(lcomment);
 	    rlen.push_back(seqlen);
-	    if(readseq)rseq.push_back(lseq);
-	    if(readseq)rqual.push_back(lqual);
+	    if(saveseq)rseq.push_back(lseq);
+	    if(saveseq)rqual.push_back(lqual);
 	  }
   
 	  //   ****** Write to file ******* //
-	  if(otype.size()){
+	  if(outfile.is_open()){
 	    if(otype!="same"){ // write fasta
 	      outfile << fa << lname ;
 	      if(lcomment.size()) outfile << " " << lcomment <<endl;
@@ -110,11 +111,12 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxle
 	      cout << " Error! trying to write a fastq but quality string is empty! " << endl;
 	      return 1;
 	    }
-	  }
+	  }//file open
 	  if(quallen != seqlen)
 	    cout << " ERROR! seq length different from quality lenght!! " << endl;
-	}// minlen cut
-
+	}else { // minlen cut  
+	  excluded.push_back(seqlen);
+	}
       }
       
       size_t ns=0;
@@ -161,12 +163,12 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxle
 	  rname.push_back(lname);
 	  if(lcomment.size())rcomment.push_back(lcomment);
 	  rlen.push_back(seqlen);
-	  if(readseq)rseq.push_back(lseq);
-	  if(readseq)rqual.push_back(lqual);
+	  if(saveseq)rseq.push_back(lseq);
+	  if(saveseq)rqual.push_back(lqual);
 	}
 
 	//   ****** Write to file ******* //
-	if(otype.size()){
+	if(outfile.is_open()){
 	  if(otype!="same"){ // write fasta
 	    outfile << fa << lname ;
 	    if(lcomment.size()) outfile << " " << lcomment <<endl;
@@ -185,19 +187,18 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxle
 	}
 	if(quallen != seqlen)
 	  cout << " ERROR! seq length different from quality lenght!! " << endl;
+      }else{
+	excluded.push_back(seqlen);
       }
       stop=0;
     }
-
-
   }//read loop
- 
   return 0;
 }
 
 
 // ---------------------------------------- //
-int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="")
+int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="")
 // ---------------------------------------- //
 { 
   igzstream infile(file);
@@ -206,7 +207,7 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxle
 
   rlen.reserve(100000);
   rname.reserve(100000);
-  if(readseq)
+  if(saveseq)
     rseq.reserve(100000);
 
 
@@ -238,18 +239,20 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxle
 	  if(saveinfo){
 	    rname.push_back(lname);
 	    rlen.push_back(seqlen);
-	    if(readseq)rseq.push_back(lseq);
-	    if(lcomment.size())rcomment.push_back(lcomment);
+	    if(saveseq)rseq.push_back(lseq);
+	    if(saveseq)if(lcomment.size())rcomment.push_back(lcomment);
 	  }
 
 	  //   ****** Write to file ******* //
-	  if(otype.size()){
+	  if(outfile.is_open()){
 	    outfile << fa << lname ;
 	    if(lcomment.size()) outfile << " " << lcomment <<endl;
 	    else outfile << endl;
 	    outfile << lseq << endl;
 	  }
 
+	}else{
+	  excluded.push_back(seqlen);
 	}
       }
       
@@ -284,28 +287,26 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int minlen=0, int maxle
 	if(saveinfo){
 	  rname.push_back(lname);
 	  rlen.push_back(seqlen);
-	  if(readseq)rseq.push_back(lseq);
-	  if(lcomment.size())rcomment.push_back(lcomment);
+	  if(saveseq)rseq.push_back(lseq);
+	  if(saveseq)if(lcomment.size())rcomment.push_back(lcomment);
 	}
 
 	//   ****** Write to file ******* //
-	if(otype.size()){
+	if(outfile.is_open()){
 	  outfile << fa << lname ;
 	  if(lcomment.size()) outfile << " " << lcomment <<endl;
 	  else outfile << endl;
 	  outfile << lseq << endl;
 	}
     
+      }else{
+	excluded.push_back(seqlen);
       }
       stop=0;
     }
   }//read loop
- 
   return 0;
 }
-
-
-
 
 
 // numeric to string
@@ -365,9 +366,10 @@ std::tuple<long int, int, float, long int, long int, int>  calcstats(vector<int>
   l50=lengths[n50-1];  //counting from 0
   
   if(0)
-    std::cout << std::fixed << std::setprecision(0) <<  "Bases= " << bases << " contigs= "<< n << " mean_length= " 
-	<< mean << " longest= " << max << " N50= "<< l50 << " n= " << n50   //counting from 1
-	<< std::endl;  
+    std::cout << std::fixed << std::setprecision(0) <<  "Bases= " << bases << " contigs= "
+	      << n << " mean_length= " 
+	      << mean << " longest= " << max << " N50= "<< l50 << " n= " << n50   //counting from 1
+	      << std::endl;  
 
   return std::make_tuple(bases,n,mean, max, l50, n50);
 }

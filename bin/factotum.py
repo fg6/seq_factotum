@@ -7,7 +7,7 @@ import subprocess
 from shutil import which
 
 inputfile = '' 
-ctgname= ''
+seqname= ''
 min_length=0
 max_length=0
 fq2fa=False
@@ -15,18 +15,19 @@ contigs={}
 outfile=''
 filename=''
 out_type=''
-
+nlist=0
 
 
 def main():
 
    global inputfile  
-   global ctgname
+   global seqname
    global min_length
    global max_length
    global fq2fa
    global outfile
    global write
+   global nlist
 
    write=0
 
@@ -46,21 +47,21 @@ def main():
    # select and print only 1 ctg ### later add list from file? ###
    # add option write each contg in different file, but question if too many ctgs #
    # jolly: add list chromosomes up to 20, larger and smaller
-   # jolly: when selecting, print some stats: how many printed, how many excluded...
    action  = parser.add_argument_group('Action arguments:')
-   action.add_argument("--stats", action="store_true", help="Print stats: bases, ctg_num, longest, mean, n50, n_n50")
+   action.add_argument("--list", dest="nlist", type=int, 
+                     help="List this many seqs (from longest)")
+   action.add_argument("--stats", action="store_true", help="Print stats: bases, seq_num, longest, mean, n50, n_n50")
    action.add_argument("--break", dest="scaffbreak", action="store_true",
                      help="Break scaffolds @>3Ns, print ctgs to file and print stats")
    action.add_argument("--fq2fa", dest="fq2fa",  action="store_true", default=False,
                      help="Write fasta from fastq")
-   action.add_argument("--ctg", dest="ctgname",
-                     help="Write only this contig/read")
+   action.add_argument("--seq", dest="seqname",
+                     help="Write in file only this Seq")
    action.add_argument("--min", dest="min_length", type=int,
-                     help="Write only contigs/reads longer than min_length")
+                     help="Write in file only Seqs longer than min_length")
    action.add_argument("--max", dest="max_length", type=int,
-                     help="Write only contigs/reads shorter than max_length")
-
-  
+                     help="Write in file only Seqs shorter than max_length")
+     
    if len(sys.argv)==1:
        parser.print_help()
        sys.exit(1)
@@ -70,7 +71,6 @@ def main():
    if not os.path.exists(args.filename): 
         print("Sorry, file ", args.filename, "does not exists")
         sys.exit(2)
- 
 
 
    ##################################
@@ -80,34 +80,37 @@ def main():
    preout=''  # prefix for output file name
    if args.fq2fa:
       write=1
-      printout+="\n  Changing format: fasta from fastq";
+      printout+="\n Factotum: Changing format: fasta from fastq";
       fq2fa=args.fq2fa
       preout+="fq2fa_"
      
-   if any(f for f in (args.ctgname, args.min_length, max_length)): 
-       printout+='\n Contig Selection:'
-   if args.ctgname is not None:
-       printout+="\n  Writing only contig/read named: " + args.ctgname;
-       ctgname=args.ctgname 
-       preout+=ctgname+"_"
+   if args.seqname is not None:
+       printout+="\n Factotum: Writing only seq named: " + args.seqname;
+       seqname=args.seqname 
+       preout+=seqname+"_"
        write=1
    if args.min_length is not None:
-       printout+="\n  Writing only contig/reads longer than "+str(args.min_length);
+       printout+="\n Factotum: Writing only seq longer than "+str(args.min_length);
        min_length=args.min_length
        preout+="min" + "_" + str(min_length) + "_"
        write=1
    if args.max_length is not None:
-       printout+="\n  Writing only contig/reads shorter than " + str(args.max_length);
+       printout+="\n Factotum: Writing only seq shorter than " + str(args.max_length);
        max_length=args.max_length
        preout+="max" +"_" + str(max_length) + "_"
        write=1
    if args.scaffbreak:
-      printout+="\n  Breaking scaffolds @ 3Ns";
+      printout+="\n Factotum: Breaking scaffolds @ 3Ns";
       preout+="ctgs"+"_"
       write=1
    if args.stats:
-      printout+='\n Calculating stats'
-      
+      printout+='\n Factotum: Calculating stats'
+   if args.nlist:
+      if args.nlist == 1: printout += ' Factotum: Listing the longest seqs'
+      else:  printout+=' Factotum: Listing the ' + str(args.nlist) + ' longest seqs'
+      printout+=' and the shortest one'
+      nlist = args.nlist
+         
    ##################################
    ######## output file name ########
    ##################################
@@ -119,7 +122,7 @@ def main():
        print("\n ******* Error: re-writing the same file! Exiting now ******* \n")
        sys.exit(2)
    elif write:
-      printout+='\n  Output file: ' + outfile
+      printout+='\n Output file: ' + outfile
       
 
    ##################################
@@ -129,6 +132,7 @@ def main():
        print("\n *** Nothing to be done. ***\n")
        sys.exit(2)
    elif not args.quite: print(printout) #,'\n')
+
 
 
    ###################################
@@ -143,10 +147,11 @@ def main():
       print("\n",subprocess.check_output([exe, inputfile]).decode('utf-8').strip())
       
 
-   if args.ctgname or args.min_length or args.max_length or args.fq2fa:
+   if args.seqname or args.min_length or args.max_length or args.fq2fa or args.nlist:
       exe=factotum_bin+"/jolly"
       print("\n",subprocess.check_output([exe, inputfile, outfile, out_type, str(min_length), 
-                                          str(max_length), ctgname]).decode('utf-8').strip())
+                                          str(max_length), seqname, str(nlist)]).decode('utf-8').strip())
+   print(' ')
 
 
 

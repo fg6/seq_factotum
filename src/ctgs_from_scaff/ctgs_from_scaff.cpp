@@ -1,4 +1,5 @@
 #include "readfastaq.h"
+#include <locale>
 
 int break_scaffolds(int write);
 static  vector<int> ctglen;
@@ -19,12 +20,13 @@ int main(int argc, char *argv[])
   int err=0;
   int saveinfo=1;
   int readseq=1;
+  int saveseq=1;
   int write=1;
 
   // Read file //
   int isfq=fasttype(argv[1]);
   if(!isfq){
-    err=readfasta(argv[1],saveinfo,readseq); 
+    err=readfasta(argv[1],saveinfo,readseq,saveseq); 
   }else{
     cout << " Error: scaffolds-breaking only available for fasta file! " << endl;
     return 1;
@@ -60,7 +62,6 @@ int break_scaffolds(int write)
   int cc=0;
 
   for (unsigned i=0; i < rseq.size(); i++) { // loop over scaffolds
-  
     string s = rseq[i];
     string name = rname[i];
     int len = rlen[i];
@@ -122,35 +123,41 @@ int break_scaffolds(int write)
 	//cc++;
       }
     }
-  }
+ }
 
   //cout << cc << " " << ctglen.size() << endl;
-
+      
   if(scafcounts){
-    cout << "\nI've found " << scafcounts << " scaffolds with breaking points of at least 3 Ns";
-    if(write) cout << " (contigs written to ctgs.fasta) " << endl;
-    else cout << endl;
+    cout << "\nI've found " << scafcounts << " scaffolds with breaking points of at least 3 Ns" << endl;
   }else{
     cout << "\nFound no scaffolds to split!" << endl;
   }
+
+
+  std::stringstream ss;
+  ss.imbue(std::locale(""));
 
   int n, n50;
   long int max, bases, l50;
   float mean;
   
-  cout << "\nScaffold stats:" << endl;
+  ss << "\n Scaffold stats:" << endl;
   std::tie(bases,n,mean, max, l50, n50)= calcstats(rlen);  
-  cout << std::fixed << std::setprecision(0) <<  " Bases= " << bases << " contigs= "<< n << " mean_length= " 
-       << mean << " longest= " << max << " N50= "<< l50 << " n= " << n50   //counting from 1
-       << std::endl;  
+  ss << std::fixed << std::setprecision(0) <<  "  Bases= " << bases << " Seqs= "<< n << " Mean_length= " 
+	<< mean << " Longest= " << max << " N50= "<< l50 << " N_n50= " << n50   //counting from 1
+	<< std::endl;  
+
   
   if(scafcounts){
-    cout << "\nContig stats:" << endl;
+    ss << "\n Contig stats:" << endl;
     std::tie(bases,n,mean, max, l50, n50)= calcstats(ctglen);  
-    cout << std::fixed << std::setprecision(0) <<  " Bases= " << bases << " contigs= "<< n << " mean_length= " 
-	 << mean << " longest= " << max << " N50= "<< l50 << " n= " << n50   //counting from 1
-	 << std::endl;  
+    ss << std::fixed << std::setprecision(0) <<  "  Bases= " << bases << " Seqs= "<< n << " Mean_length= "    
+        << mean << " Longest= " << max << " N50= "<< l50 << " N_n50= " << n50   //counting from 1
+        << std::endl;
   }
+
+
+  cout << ss.str()  << endl;
   return 0;
 }
 
