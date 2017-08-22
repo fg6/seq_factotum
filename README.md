@@ -22,7 +22,8 @@ A Python script to handle genomic sequences: calculate sequences stats, select a
       --max MAX_LENGTH  Write in file only Seqs shorter than max_length
   
 ## Requirements
-Python 3 (tested with 3.6.1)
+Python 3 
+Tested with Python 3.6.1, gcc 4.9.2
 
 ## Instructions
 Download repository and install utilities/compile tools: 
