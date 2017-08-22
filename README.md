@@ -31,5 +31,8 @@ Download repository and install utilities/compile tools:
 	$ git clone https://github.com/fg6/seq_factotum.git
 	$ cd seq_factotum
 	$ ./install.sh
+	
+To run, add the factotum bin location to your PATH, then run:
+
 	$ myfactotum=`pwd`; PATH=$myfactotum/bin/:$PATH   
-    $ factotum.py -f file.fasta --stats
+	$ factotum.py -f file.fasta --stats
