@@ -106,8 +106,8 @@ def main():
    if args.stats:
       printout+='\n Factotum: Calculating stats'
    if args.nlist:
-      if args.nlist == 1: printout += ' Factotum: Listing the longest seqs'
-      else:  printout+=' Factotum: Listing the ' + str(args.nlist) + ' longest seqs'
+      if args.nlist == 1: printout += '\n Factotum: Listing the longest seqs'
+      else:  printout+='\n Factotum: Listing the ' + str(args.nlist) + ' longest seqs'
       printout+=' and the shortest one'
       nlist = args.nlist
          

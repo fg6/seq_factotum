@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 	int ii = std::distance( rlen.begin(), std::find( rlen.begin(), rlen.end(), imin ) );
 	ss << "\n The Shortest Seq is " << rname[ii] << " lenght= " << std::fixed << imin << " bp" <<endl;
 
-	cout << ss.str() << endl;
+	//cout << ss.str() << endl;
       }
  
     }else{
@@ -114,9 +114,10 @@ int main(int argc, char *argv[])
 	<< mean << " Longest= " << max << " N50= "<< l50 << " N_n50= " << n50   //counting from 1
 	<< std::endl;  
     }else{
-      ss << "\n Excluded stats: "<< endl;
+      if(writefile) ss << "\n Excluded stats: "<< endl;
       if(writefile) ss << "  No seqs excluded " << endl; // only for selection cases
     }
+    
     cout << ss.str() << endl;
 
   }else{
