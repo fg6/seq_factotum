@@ -99,8 +99,6 @@ int main(int argc, char *argv[])
 	int imin= *min_element(rlen.begin(),rlen.end());
 	int ii = std::distance( rlen.begin(), std::find( rlen.begin(), rlen.end(), imin ) );
 	ss << "\n The Shortest Seq is " << rname[ii] << " lenght= " << std::fixed << imin << " bp" <<endl;
-
-	//cout << ss.str() << endl;
       }
  
     }else{
