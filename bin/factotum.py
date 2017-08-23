@@ -46,7 +46,8 @@ def main():
 
    # select and print only 1 ctg ### later add list from file? ###
    # add option write each contg in different file, but question if too many ctgs #
-   # jolly: add list chromosomes up to 20, larger and smaller
+   # add reverse complement
+   # add gc
    action  = parser.add_argument_group('Action arguments:')
    action.add_argument("--list", dest="nlist", type=int, 
                      help="List this many seqs (from longest)")
@@ -159,7 +160,7 @@ def filetype_(filename):
     global outfile
     global out_type
 
-    typefasta=('fasta','fsa','fa')
+    typefasta=('fasta','fsa','fa','fna')
     typefastq=('fastq','fq')
 
     if len(filename.split('.gz')) > 1:  # if more than 1 ext (.fa.gz f.i.)
