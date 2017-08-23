@@ -9,7 +9,7 @@ A Python script to handle genomic sequences: calculate sequences stats, select a
       -q                don't print status messages to stdout
 
     Required Arguments:
-      -f FILENAME       full path to a fasta/fastq file
+      -f FILENAME       full path to a fasta[.gz]/fastq[.gz] file
   
     Action arguments::
 
@@ -36,3 +36,6 @@ To run, add the factotum bin location to your PATH, then run:
 
 	$ myfactotum=`pwd`; PATH=$myfactotum/bin/:$PATH   
 	$ factotum.py -f file.fasta --stats
+	
+## External packages
+The seq_factotum downloads and installs the gzstream library to handle gzip input files (https://www.cs.unc.edu/Research/compgeom/gzstream/)
