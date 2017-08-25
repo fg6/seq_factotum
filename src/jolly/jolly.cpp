@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 { 
 
   if (argc < 3) {
-   fprintf(stderr, "Usage: %s <reads.fq/fa> <out.file> [fastq/fasta] [min] [max] [ctg] [list] \n", 
+   fprintf(stderr, "Usage: %s <reads.fq/fa> <out.file> [fastq/fasta] [min] [max] [list] [ctg] \n", 
 	   argv[0]); //[ipos] [epos] [len_from_end]\n", argv[0]);
    return 1;
   }	
@@ -35,19 +35,14 @@ int main(int argc, char *argv[])
   if(argc > 3) otype=argv[3];          // write fasta from fastq
   if(argc > 4) minl=atoi(argv[4]); 
   if(argc > 5) maxl=atoi(argv[5]);  // write ctg < maxl
-  if(argc > 6) ctg=argv[6];          // write only ctg=ctg
-  if(argc > 7) nlist=atoi(argv[7]);          
+  if(argc > 7) ctg=argv[7];          // write only ctg=ctg
+  if(argc > 6) nlist=atoi(argv[6]);          
 
 
   // these not working yet in new version:
   //if(argc > 4) ipos=atoi(argv[4]);   // write only ctg from ipos base. if ipos==0 write from first base
   //if(argc > 5) epos=atoi(argv[5]);   // write only ctg up to epos base. If epos==0 write up to end of ctg
   //if(argc > 6) elen=atoi(argv[6]);   // write only ctg from ipos base. if ipos==0 write from first base
-
-  if(outname==seqfile){
-    cout << " Error! trying to rewrite the same file! " <<endl;
-    return 1;
-  }
   std::stringstream ss;
   ss.imbue(std::locale(""));
   
@@ -56,6 +51,12 @@ int main(int argc, char *argv[])
 
 
   if (nlist > 0) writefile = 0;
+  if(outname==seqfile){
+    cout << " Error! trying to rewrite the same file! " <<endl;
+    return 1;
+  }
+
+
   int isfq=fasttype(argv[1]);
   if(otype=="fastq" && isfq) otype="same";
   int err=1;

@@ -48,6 +48,7 @@ def main():
    # add option write each contg in different file, but question if too many ctgs #
    # add reverse complement
    # add gc
+   # add length distribution plot
    action  = parser.add_argument_group('Action arguments:')
    action.add_argument("--list", dest="nlist", type=int, 
                      help="List this many seqs (from longest)")
@@ -111,6 +112,7 @@ def main():
       else:  printout+='\n Factotum: Listing the ' + str(args.nlist) + ' longest seqs'
       printout+=' and the shortest one'
       nlist = args.nlist
+      preout+="empty"+"_"
          
    ##################################
    ######## output file name ########
@@ -145,13 +147,14 @@ def main():
       
    if args.stats:
       exe=factotum_bin+"/n50"
-      print("\n",subprocess.check_output([exe, inputfile]).decode('utf-8').strip())
+      print(subprocess.check_output([exe, inputfile]).decode('utf-8').strip())
       
 
    if args.seqname or args.min_length or args.max_length or args.fq2fa or args.nlist:
       exe=factotum_bin+"/jolly"
       print("\n",subprocess.check_output([exe, inputfile, outfile, out_type, str(min_length), 
-                                          str(max_length), seqname, str(nlist)]).decode('utf-8').strip())
+                                          str(max_length), str(nlist), seqname]).decode('utf-8').strip())
+      print(subprocess.check_output(['rm', '-f', 'empty_*']).decode('utf-8').strip())
    print(' ')
 
 
