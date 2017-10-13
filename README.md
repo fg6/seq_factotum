@@ -36,6 +36,16 @@ To run, add the factotum bin location to your PATH, then run:
 
 	$ myfactotum=`pwd`; PATH=$myfactotum/bin/:$PATH   
 	$ factotum.py -f file.fasta --stats
+
+Or better, create aliases, for instance in your ~/.bashrc add:
+
+	alias stats='full_PATH/seq_factotum/bin/factotum.py --stats -f'
+
+then run it like this:
+
+	$ stats file.fasta
+
+
 	
 ## External packages
 The seq_factotum downloads and installs the gzstream library to handle gzip input files (https://www.cs.unc.edu/Research/compgeom/gzstream/)
