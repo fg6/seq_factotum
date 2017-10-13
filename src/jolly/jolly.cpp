@@ -1,7 +1,11 @@
 #include "readfastaq.h"
 #include <locale>
+#include <map>
 
 int calc(void);
+static  std::vector<std::pair<string, long int> > myseqs;  // vector of ctg names, length  READY
+bool comparator ( const std::pair<string, long int>& l, const std::pair<string, long int>& r)
+{ return l.second > r.second; }
 
 int main(int argc, char *argv[])
 { 
@@ -67,8 +71,12 @@ int main(int argc, char *argv[])
     err=readfastq(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,otype); 
   }
   if(writefile)outfile.close();
+ 
 
-  
+  for(int c=0; c<rname.size(); c++){
+    myseqs.push_back(std::make_pair(rname[c],rlen[c]));
+  }
+
   int n, n50;
   long int max, bases, l50;
   float mean;
@@ -77,29 +85,37 @@ int main(int argc, char *argv[])
     if(rlen.size()>0){  
       if(writefile) ss << "  Selected seq stats: "<< endl;  // for sel case
       std::tie(bases,n,mean, max, l50, n50)= calcstats(rlen);  
+
       ss << std::fixed << std::setprecision(0) <<  "  Bases= " << bases << " Seqs= "<< n << " Mean_length= " 
 	<< mean << " Longest= " << max << " N50= "<< l50 << " N_n50= " << n50   //counting from 1
 	<< std::endl;  
      
      if(nlist > 0){
 	if (nlist > rlen.size()){
-	  cout << " **** Warning: ***** \n There are only rlen.size() Seqs to list " << endl;
+	  cout << " **** Warning: ***** \n There are only " <<  rlen.size() << " Seqs to list " << endl;
 	  nlist=rlen.size();
 	}
 
 	cout << "\n Global seq stats: "<< endl;  // for list case
-	sort(rlen.begin(),  rlen.end(), std::greater<int>());
+	//sort(rlen.begin(),  rlen.end(), std::greater<int>()); // wrong, it does not sort the names
+	sort(myseqs.begin(),myseqs.end(),comparator);
+
+
 	if (nlist==1)
 	  ss << "\n The Longest Seq is:" << endl;
 	else 
 	  ss << "\n The " << nlist << " Longest Seqs are:" << endl;
 
-	for (int nn=0; nn < nlist; nn++)
-	  ss << " Chr " << rname[nn] << " lenght= " <<  std::fixed << rlen[nn] << " bp" << endl;
+	for (int nn=0; nn < nlist; nn++){
+	  //ss << " Chr " << rname[nn] << " lenght= " <<  std::fixed << rlen[nn] << " bp" << endl;
+	  ss << " Chr " << myseqs[nn].first << " lenght= " <<  std::fixed << myseqs[nn].second << " bp" << endl;
+	}
+	//int imin= *min_element(rlen.begin(),rlen.end());
+	//int ii = std::distance( rlen.begin(), std::find( rlen.begin(), rlen.end(), imin ) );
+	//ss << "\n The Shortest Seq is " << rname[ii] << " lenght= " << std::fixed << imin << " bp" <<endl;
 
-	int imin= *min_element(rlen.begin(),rlen.end());
-	int ii = std::distance( rlen.begin(), std::find( rlen.begin(), rlen.end(), imin ) );
-	ss << "\n The Shortest Seq is " << rname[ii] << " lenght= " << std::fixed << imin << " bp" <<endl;
+	ss << "\n The Shortest Seq is " << myseqs[myseqs.size()-1].first 
+	   << " lenght= " << std::fixed << myseqs[myseqs.size()-1].second << " bp" <<endl;
       }
  
     }else{

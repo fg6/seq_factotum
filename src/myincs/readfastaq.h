@@ -211,6 +211,10 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
     rseq.reserve(100000);
 
 
+  if(0)cout << minlen << " " << selctg.size() << " " << selctg
+	    << " " << maxlen << endl;
+
+
   string read;
   string lname;
   string lcomment="";   
@@ -227,13 +231,14 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
       if(nseq>1){ // previous
 	lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
 
-	if(0)cout << minlen << " " << selctg.size() << " " << selctg
+	if(0)cout << " " << minlen << " " << selctg.size() << " " << selctg
 	     << " " << maxlen << " " << seqlen << endl;
+	if(0) cout << " " << lname << " " << seqlen << endl;
 	if(0)cout << (seqlen>=minlen) << " " <<  
 	       ( selctg.size()==0 || selctg.compare(lname) )  << " " <<  
 	       ( maxlen==0 || seqlen < maxlen ) << " " << selctg.compare(lname) << endl;
 
-	if(  (seqlen>=minlen) && ( selctg.size()==0 || !selctg.compare(lname) ) 
+	if(  (seqlen>=minlen) && ( selctg.size()==0 || selctg.compare(lname)==0 ) 
 	     && ( maxlen==0 || seqlen < maxlen ) ){
 
 	  if(saveinfo){
@@ -245,6 +250,7 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 
 	  //   ****** Write to file ******* //
 	  if(outfile.is_open()){
+	    if(1)cout << " writing! " << endl;
 	    outfile << fa << lname ;
 	    if(lcomment.size()) outfile << " " << lcomment <<endl;
 	    else outfile << endl;
@@ -281,7 +287,7 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
     // EOF
     if(infile.eof()){ // previous
       lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
-      if(  (seqlen>=minlen) && (selctg.size()==0 ||  !selctg.compare(lname) )
+      if(  (seqlen>=minlen) && (selctg.size()==0 || selctg.compare(lname)==0 )
 	   && (maxlen==0 || seqlen < maxlen) ){
 
 	if(saveinfo){
