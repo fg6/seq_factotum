@@ -15,6 +15,7 @@ contigs={}
 outfile=''
 filename=''
 out_type=''
+avoid=''
 nlist=0
 
 
@@ -28,6 +29,7 @@ def main():
    global outfile
    global write
    global nlist
+   global avoid
 
    write=0
 
@@ -63,7 +65,9 @@ def main():
                      help="Write in file only Seqs longer than min_length")
    action.add_argument("--max", dest="max_length", type=int,
                      help="Write in file only Seqs shorter than max_length")
-     
+   action.add_argument("--avoid", dest="avoid",
+                    help="Write in file Seqs not matching list in this file")
+
    if len(sys.argv)==1:
        parser.print_help()
        sys.exit(1)
@@ -101,6 +105,13 @@ def main():
        max_length=args.max_length
        preout+="max" +"_" + str(max_length) + "_"
        write=1
+
+   if args.avoid is not None:
+       printout+="\n Factotum: Writing only seqs not matching list  " + str(args.avoid);
+       avoid=args.avoid
+       preout+="avoid" +"_" + str(avoid) + "_"
+       write=1
+
    if args.scaffbreak:
       printout+="\n Factotum: Breaking scaffolds @ 3Ns";
       preout+="ctgs"+"_"
@@ -150,10 +161,10 @@ def main():
       print(subprocess.check_output([exe, inputfile]).decode('utf-8').strip())
       
 
-   if args.seqname or args.min_length or args.max_length or args.fq2fa or args.nlist:
+   if args.seqname or args.min_length or args.max_length or args.fq2fa or args.nlist or args.avoid:
       exe=factotum_bin+"/jolly"
       print("\n",subprocess.check_output([exe, inputfile, outfile, out_type, str(min_length), 
-                                          str(max_length), str(nlist), seqname]).decode('utf-8').strip())
+                                          str(max_length), str(nlist), seqname, avoid]).decode('utf-8').strip())
       print(subprocess.check_output(['rm', '-f', 'empty_*']).decode('utf-8').strip())
    print(' ')
 

@@ -9,9 +9,8 @@ bool comparator ( const std::pair<string, long int>& l, const std::pair<string, 
 
 int main(int argc, char *argv[])
 { 
-
   if (argc < 3) {
-   fprintf(stderr, "Usage: %s <reads.fq/fa> <out.file> [fastq/fasta] [min] [max] [list] [ctg] \n", 
+   fprintf(stderr, "Usage: %s <reads.fq/fa> <out.file> [fastq/fasta] [min] [max] [list] [ctg] [avoid]\n", 
 	   argv[0]); //[ipos] [epos] [len_from_end]\n", argv[0]);
    return 1;
   }	
@@ -31,6 +30,7 @@ int main(int argc, char *argv[])
   int readseq=1;
   int nlist=0;
   string otype="same";
+  string list_to_avoid;
 
   int ipos=0;
   int epos=0;
@@ -39,9 +39,9 @@ int main(int argc, char *argv[])
   if(argc > 3) otype=argv[3];          // write fasta from fastq
   if(argc > 4) minl=atoi(argv[4]); 
   if(argc > 5) maxl=atoi(argv[5]);  // write ctg < maxl
-  if(argc > 7) ctg=argv[7];          // write only ctg=ctg
   if(argc > 6) nlist=atoi(argv[6]);          
-
+  if(argc > 7) ctg=argv[7];          // write only ctg=ctg
+  if(argc > 8) list_to_avoid=argv[8];   // write only ctg=ctg
 
   // these not working yet in new version:
   //if(argc > 4) ipos=atoi(argv[4]);   // write only ctg from ipos base. if ipos==0 write from first base
@@ -60,11 +60,17 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  if((fp = gzopen(argv[8],"r")) != NULL){ 
+    readctglist(argv[8]);  // list of ctg to avoid
+    cout << " not writing ctgs/scaffolds from list " << argv[8] << endl;
+  }
+
 
   int isfq=fasttype(argv[1]);
   if(otype=="fastq" && isfq) otype="same";
   int err=1;
   if(writefile)outfile.open(outname);
+  
   if(!isfq){
     err=readfasta(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,"same"); 
   }else{
@@ -97,7 +103,6 @@ int main(int argc, char *argv[])
 	}
 
 	cout << "\n Global seq stats: "<< endl;  // for list case
-	//sort(rlen.begin(),  rlen.end(), std::greater<int>()); // wrong, it does not sort the names
 	sort(myseqs.begin(),myseqs.end(),comparator);
 
 
@@ -107,13 +112,8 @@ int main(int argc, char *argv[])
 	  ss << "\n The " << nlist << " Longest Seqs are:" << endl;
 
 	for (int nn=0; nn < nlist; nn++){
-	  //ss << " Chr " << rname[nn] << " lenght= " <<  std::fixed << rlen[nn] << " bp" << endl;
 	  ss << " Chr " << myseqs[nn].first << " lenght= " <<  std::fixed << myseqs[nn].second << " bp" << endl;
 	}
-	//int imin= *min_element(rlen.begin(),rlen.end());
-	//int ii = std::distance( rlen.begin(), std::find( rlen.begin(), rlen.end(), imin ) );
-	//ss << "\n The Shortest Seq is " << rname[ii] << " lenght= " << std::fixed << imin << " bp" <<endl;
-
 	ss << "\n The Shortest Seq is " << myseqs[myseqs.size()-1].first 
 	   << " lenght= " << std::fixed << myseqs[myseqs.size()-1].second << " bp" <<endl;
       }

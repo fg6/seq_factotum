@@ -24,6 +24,7 @@ static  vector<string> rcomment;
 static  vector<int> excluded;
 static  vector<int> ctgrlen;
 
+static  vector<string> avoid;
 
 // ---------------------------------------- //
 int fasttype(char* file)
@@ -83,8 +84,10 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
       if(nseq>1){ // previous
 	
 	lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
-	if(  (seqlen>=minlen) && (selctg.size()==0 ||   !selctg.compare(lname) )
-	     && (maxlen==0 || seqlen < maxlen) ){
+	if(  ( seqlen >= minlen ) 
+	     && ( selctg.size()==0 ||   !selctg.compare(lname) )
+	     && ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) == avoid.end() )
+	     && ( maxlen==0 || seqlen < maxlen ) ){
 
 	  if(saveinfo){
 	    rname.push_back(lname);
@@ -156,7 +159,9 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
     // EOF
     if(infile.eof()){ // previous
       lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
-      if(  (seqlen>=minlen) && (selctg.size()==0 ||  !selctg.compare(lname) )
+      if(  (seqlen>=minlen) 
+	   && (selctg.size()==0 ||  !selctg.compare(lname) )
+	   && ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) == avoid.end() )
 	   && (maxlen==0 || seqlen < maxlen) ){
 
 	if(saveinfo){
@@ -196,7 +201,23 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
   return 0;
 }
 
+// ---------------------------------------- //
+int readctglist(char* file)
+// ---------------------------------------- //
+{ 
+  igzstream infile(file);
+  string read;
 
+  int stop=1;
+  while(stop){
+    getline(infile,read);
+    if(!infile.eof()){
+      avoid.push_back(read);
+    }else{
+      stop=0;
+    }
+  }
+}
 // ---------------------------------------- //
 int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="")
 // ---------------------------------------- //
@@ -238,7 +259,13 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 	       ( selctg.size()==0 || selctg.compare(lname) )  << " " <<  
 	       ( maxlen==0 || seqlen < maxlen ) << " " << selctg.compare(lname) << endl;
 
-	if(  (seqlen>=minlen) && ( selctg.size()==0 || selctg.compare(lname)==0 ) 
+
+	//if ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) != avoid.end() )
+	//cout << " this ctg needs avoiding " << lname << endl;
+
+	if(  ( seqlen >= minlen ) 
+	     && ( selctg.size()==0 || selctg.compare(lname)==0 ) 
+	     && ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) == avoid.end() )
 	     && ( maxlen==0 || seqlen < maxlen ) ){
 
 	  if(saveinfo){
@@ -250,7 +277,6 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 
 	  //   ****** Write to file ******* //
 	  if(outfile.is_open()){
-	    if(1)cout << " writing! " << endl;
 	    outfile << fa << lname ;
 	    if(lcomment.size()) outfile << " " << lcomment <<endl;
 	    else outfile << endl;
@@ -287,7 +313,9 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
     // EOF
     if(infile.eof()){ // previous
       lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
-      if(  (seqlen>=minlen) && (selctg.size()==0 || selctg.compare(lname)==0 )
+      if(  (seqlen>=minlen) 
+	   && (selctg.size()==0 || selctg.compare(lname)==0 )
+	   && ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) == avoid.end() )
 	   && (maxlen==0 || seqlen < maxlen) ){
 
 	if(saveinfo){
