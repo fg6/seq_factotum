@@ -46,7 +46,7 @@ int fasttype(char* file)
 
 
 // ---------------------------------------- //
-int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="", int remove_comments=0)
+int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="", int remove_comments=0, string keep="", string rm="")
 // ---------------------------------------- //
 { 
   igzstream infile(file);
@@ -84,9 +84,12 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 	
 	lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
 	if(  ( seqlen >= minlen ) 
-	     && ( selctg.size()==0 ||   !selctg.compare(lname) )
+	     && ( selctg.size()==0  ||   !selctg.compare(lname) )
 	     && ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) == avoid.end() )
-	     && ( maxlen==0 || seqlen < maxlen ) ){
+	     && ( maxlen==0 || seqlen < maxlen ) 
+	     && ( keep.size()==0  ||  lname.find(keep)!=std::string::npos) 
+	     && ( rm.size()==0  ||  lname.find(rm)==std::string::npos) 
+	     ){
 
 	  if(saveinfo){
 	    rname.push_back(lname);
@@ -159,14 +162,16 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
       seqlines++;
       seqlen+=read.size();
     }
- 
     // EOF
     if(infile.eof()){ // previous
       lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
       if(  (seqlen>=minlen) 
 	   && (selctg.size()==0 ||  !selctg.compare(lname) )
 	   && ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) == avoid.end() )
-	   && (maxlen==0 || seqlen < maxlen) ){
+	   && (maxlen==0 || seqlen < maxlen) 
+	   && ( keep.size()==0  ||  lname.find(keep)!=std::string::npos) 
+	   && ( rm.size()==0  ||  lname.find(rm)==std::string::npos) 
+	   ){
 
 	if(saveinfo){
 	  rname.push_back(lname);
@@ -223,7 +228,7 @@ int readctglist(char* file)
   }
 }
 // ---------------------------------------- //
-int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="", int remove_comments=0)
+int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="", int remove_comments=0, string keep="", string rm="")
 // ---------------------------------------- //
 { 
   igzstream infile(file);
@@ -234,10 +239,6 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
   rname.reserve(100000);
   if(saveseq)
     rseq.reserve(100000);
-
-
-  if(0)cout << minlen << " " << selctg.size() << " " << selctg
-	    << " " << maxlen << endl;
 
 
   string read;
@@ -256,21 +257,13 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
       if(nseq>1){ // previous
 	lname.erase( std::remove(lname.begin(), lname.end(), ' '), lname.end() );
 
-	if(0)cout << " " << minlen << " " << selctg.size() << " " << selctg
-	     << " " << maxlen << " " << seqlen << endl;
-	if(0) cout << " " << lname << " " << seqlen << endl;
-	if(0)cout << (seqlen>=minlen) << " " <<  
-	       ( selctg.size()==0 || selctg.compare(lname) )  << " " <<  
-	       ( maxlen==0 || seqlen < maxlen ) << " " << selctg.compare(lname) << endl;
-
-
-	//if ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) != avoid.end() )
-	//cout << " this ctg needs avoiding " << lname << endl;
-
+	//cout << keep << " only! " << endl;
 	if(  ( seqlen >= minlen ) 
 	     && ( selctg.size()==0 || selctg.compare(lname)==0 ) 
 	     && ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) == avoid.end() )
-	     && ( maxlen==0 || seqlen < maxlen ) ){
+	     && ( maxlen==0 || seqlen < maxlen ) 
+	     && ( keep.size()==0  ||  lname.find(keep)!=std::string::npos) 
+	     && ( rm.size()==0  ||  lname.find(rm)==std::string::npos) ){
 
 	  if(saveinfo){
 	    rname.push_back(lname);
@@ -320,7 +313,9 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
       if(  (seqlen>=minlen) 
 	   && (selctg.size()==0 || selctg.compare(lname)==0 )
 	   && ( avoid.size() == 0 || std::find(avoid.begin(), avoid.end(), lname) == avoid.end() )
-	   && (maxlen==0 || seqlen < maxlen) ){
+	   && (maxlen==0 || seqlen < maxlen) 
+	   && ( keep.size()==0  ||  lname.find(keep)!=std::string::npos) 
+	   && ( rm.size()==0  ||  lname.find(rm)==std::string::npos)){
 
 	if(saveinfo){
 	  rname.push_back(lname);

@@ -10,7 +10,7 @@ bool comparator ( const std::pair<string, long int>& l, const std::pair<string, 
 int main(int argc, char *argv[])
 { 
   if (argc < 3) {
-   fprintf(stderr, "Usage: %s <reads.fq/fa> <out.file> [fastq/fasta] [min] [max] [list] [ctg] [avoid]\n", 
+   fprintf(stderr, "Usage: %s <reads.fq/fa> <out.file> [fastq/fasta] [min] [max] [list] [ctg] [keep]  [rm] [avoid]\n", 
 	   argv[0]); //[ipos] [epos] [len_from_end]\n", argv[0]);
    return 1;
   }	
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
   string seqfile = argv[1];
   string outname = argv[2];
   int writefile = 1;
-  string ctg="";
+  string ctg="", keepname="",rmname="";
   int minl=0;
   int maxl=0;
   int saveinfo=1; // save sequences in vectors
@@ -42,8 +42,10 @@ int main(int argc, char *argv[])
   if(argc > 5) maxl=atoi(argv[5]);  // write ctg < maxl
   if(argc > 6) nlist=atoi(argv[6]);          
   if(argc > 7) ctg=argv[7];          // write only ctg=ctg
-  if(argc > 8) list_to_avoid=argv[8];   // write only ctg=ctg
-  if(argc > 9) remove_comments=atoi(argv[9]);   // write only ctg=ctg
+  if(argc > 8) keepname=argv[8];          // write only ctg=ctg
+  if(argc > 9) rmname=argv[9];          // write only ctg=ctg
+  if(argc > 10) list_to_avoid=argv[10];   // write only ctg=ctg
+  if(argc > 11) remove_comments=atoi(argv[11]);   // write only ctg=ctg
 
   // these not working yet in new version:
   //if(argc > 4) ipos=atoi(argv[4]);   // write only ctg from ipos base. if ipos==0 write from first base
@@ -52,10 +54,6 @@ int main(int argc, char *argv[])
   std::stringstream ss;
   ss.imbue(std::locale(""));
   
-  if(0)cout << argv[0] << " " << seqfile << " " << outname << " " 
-	    << otype << " " << minl << " " << maxl << " " << ctg << " " << nlist 
-	    << " " << remove_comments << endl; 
-
 
   if (nlist > 0) writefile = 0;
   if(outname==seqfile){
@@ -75,9 +73,9 @@ int main(int argc, char *argv[])
   if(writefile)outfile.open(outname);
   
   if(!isfq){
-    err=readfasta(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,"same",remove_comments); 
+    err=readfasta(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,"same",remove_comments,keepname,rmname); 
   }else{
-    err=readfastq(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,otype,remove_comments); 
+    err=readfastq(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,otype,remove_comments,keepname,rmname); 
   }
   if(writefile)outfile.close();
  

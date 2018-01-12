@@ -8,6 +8,8 @@ from shutil import which
 
 inputfile = '' 
 seqname= ''
+keepname=''
+rmname=''
 min_length=0
 max_length=0
 fq2fa=False
@@ -24,6 +26,8 @@ def main():
 
    global inputfile  
    global seqname
+   global keepname
+   global rmname
    global min_length
    global max_length
    global fq2fa
@@ -62,6 +66,10 @@ def main():
                      help="Write fasta from fastq")
    action.add_argument("--seq", dest="seqname",
                      help="Write in file only this Seq")
+   action.add_argument("--keep", dest="keepname",
+                     help="Write in file only Seqs matching keepname")
+   action.add_argument("--rm", dest="rmname",
+                     help="Write in file only Seqs not matching rmname")
    action.add_argument("--min", dest="min_length", type=int,
                      help="Write in file only Seqs longer than min_length")
    action.add_argument("--max", dest="max_length", type=int,
@@ -98,6 +106,18 @@ def main():
        seqname=args.seqname 
        preout+=seqname+"_"
        write=1
+   if args.keepname is not None:
+       printout+="\n Factotum: Writing only seqs matching " + args.keepname;
+       keepname=args.keepname
+       preout+=keepname+"_"
+       write=1
+   if args.rmname is not None:
+       printout+="\n Factotum: Writing only seqs not matching: " + args.rmname;
+       rmname=args.rmname
+       preout+="removed_"+rmname+"_"
+       write=1
+ 
+
    if args.min_length is not None:
        printout+="\n Factotum: Writing only seq longer than "+str(args.min_length);
        min_length=args.min_length
@@ -169,11 +189,10 @@ def main():
       exe=factotum_bin+"/n50"
       print(subprocess.check_output([exe, inputfile]).decode('utf-8').strip())
       
-
-   if args.seqname or args.min_length or args.max_length or args.fq2fa or args.nlist or args.avoid or args.remove_comments:
+   if args.seqname or args.min_length or args.max_length or args.fq2fa or args.nlist or args.avoid or args.remove_comments or args.keepname or args.rmname:
       exe=factotum_bin+"/jolly"
       print("\n",subprocess.check_output([exe, inputfile, outfile, out_type, str(min_length), 
-                                          str(max_length), str(nlist), seqname, avoid, str(remove_comments)]).decode('utf-8').strip())
+                                          str(max_length), str(nlist), seqname, keepname, rmname, avoid, str(remove_comments)]).decode('utf-8').strip())
       print(subprocess.check_output(['rm', '-f', 'empty_*']).decode('utf-8').strip())
    print(' ')
 
