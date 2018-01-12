@@ -40,7 +40,7 @@ Download repository and install utilities/compile tools:
 	
 To run, add the factotum 'bin' folder location to your PATH, then run:
 
-	$ myfactotum=`pwd`; PATH=$myfactotum/bin/:$PATH   
+	$ PATH=/full/path/to/seq_factotum/bin/:$PATH   
 	$ factotum.py -f file.fasta --stats
 
 	
