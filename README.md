@@ -1,5 +1,5 @@
 # seq_factotum
-A Python script to handle genomic sequences: calculate sequences stats, select a sequence, get contigs from scaffolds, print fasta from fastq
+A factotum Python script to handle genomic sequences: calculate sequences stats (n50,..), select a sequence, get contigs from scaffolds, print fasta from fastq, select sequences whose name does/doesn't match a string, select only sequences longer/shorter than a value, etc..
 
 ## Usage: 
     factotum.py -f full_path_to_file [options]
@@ -13,13 +13,18 @@ A Python script to handle genomic sequences: calculate sequences stats, select a
   
     Action arguments::
 
-      --list NLIST      List this many seqs (from longest)
-      --stats           Print stats: bases, seq_num, longest, mean, n50, n_n50
-      --break           Break scaffolds @>3Ns, print ctgs to file and print stats
-      --fq2fa           Write fasta from fastq
-      --seq SEQNAME     Write in file only this Seq
-      --min MIN_LENGTH  Write in file only Seqs longer than min_length
-      --max MAX_LENGTH  Write in file only Seqs shorter than max_length
+      --list NLIST        List this many seqs (from longest)
+      --stats             Print stats: bases, seq_num, longest, mean, n50, n_n50
+      --break             Break scaffolds @>3Ns, print ctgs to file and print stats
+      --fq2fa             Write fasta from fastq
+      --seq SEQNAME       Write in file only this Seq
+      --keep KEEPNAME     Write in file only Seqs matching keepname
+      --rm RMNAME         Write in file only Seqs not matching rmname
+      --min MIN_LENGTH    Write in file only Seqs longer than min_length
+      --max MAX_LENGTH    Write in file only Seqs shorter than max_length
+      --avoid AVOID.list  Write in file Seqs not matching list in this file
+      --nocomments        Write fasta/fastq file with no comments in read name line
+ 
   
 ## Requirements
 Python 3 
@@ -32,19 +37,10 @@ Download repository and install utilities/compile tools:
 	$ cd seq_factotum
 	$ ./install.sh
 	
-To run, add the factotum bin location to your PATH, then run:
+To run, add the factotum 'bin' folder location to your PATH, then run:
 
 	$ myfactotum=`pwd`; PATH=$myfactotum/bin/:$PATH   
 	$ factotum.py -f file.fasta --stats
-
-Or better, create aliases, for instance in your ~/.bashrc add:
-
-	alias stats='full_PATH/seq_factotum/bin/factotum.py --stats -f'
-
-then run it like this:
-
-	$ stats file.fasta
-
 
 	
 ## External packages
