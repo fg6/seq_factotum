@@ -1,23 +1,15 @@
 # seq_factotum
 A factotum Python script to handle genomic sequences:
 
-1. calculate sequences stats (bases, seq_num, longest, mean, n50,..)
-
-2. list the longest N sequences and their lengths
-
-3. select and print out a single sequence
-
-4. print to file contigs from scaffolds and summary stats
-
-5. print a fasta from fastq
-
-6. select sequences whose name does/doesn't match a string
-
-7. select only sequences longer/shorter than a value
-
-8. select and printout all sequences not in a file.list
-
-9. print fasta/q after removing the comments from the sequence name lines
+	1. calculate sequences stats (bases, seq_num, longest, mean, n50,..)
+	2. list the longest N sequences and their lengths
+	3. select and print out a single sequence
+	4. print to file contigs from scaffolds and summary stats
+	5. print a fasta from fastq
+	6. select sequences whose name does/doesn't match a string
+	7. select only sequences longer/shorter than a value
+	8. select and printout all sequences not in a file.list
+	9. print fasta/q after removing the comments from the sequence name lines
 
 
 ## Usage: 
