@@ -46,7 +46,7 @@ int fasttype(char* file)
 
 
 // ---------------------------------------- //
-int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="")
+int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="", int remove_comments=0)
 // ---------------------------------------- //
 { 
   igzstream infile(file);
@@ -62,7 +62,6 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
     rseq.reserve(100000);
     rqual.reserve(100000);
   }
-
 
   string read;
   string lname;
@@ -91,7 +90,12 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 
 	  if(saveinfo){
 	    rname.push_back(lname);
-	    if(lcomment.size())rcomment.push_back(lcomment);
+	    
+	    if(lcomment.size() && remove_comments==0 ){
+	      rcomment.push_back(lcomment);
+	      //cout << " adding comment " << endl;
+	    }
+	    //cout << lcomment.size() << " " << remove_comments << " " << lname << endl;
 	    rlen.push_back(seqlen);
 	    if(saveseq)rseq.push_back(lseq);
 	    if(saveseq)rqual.push_back(lqual);
@@ -101,12 +105,12 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 	  if(outfile.is_open()){
 	    if(otype!="same"){ // write fasta
 	      outfile << fa << lname ;
-	      if(lcomment.size()) outfile << " " << lcomment <<endl;
+	      if(lcomment.size() && remove_comments==0) outfile << " " << lcomment <<endl;
 	      else outfile << endl;
 	      outfile << lseq << endl;
 	    }else if(lqual.size()){
 	      outfile << fq << lname ;
-	      if(lcomment.size()) outfile << " " << lcomment <<endl;
+	      if(lcomment.size() && remove_comments==0) outfile << " " << lcomment <<endl;
 	      else outfile << endl;
 	      outfile << lseq << endl;
 	      outfile << "+" << endl << lqual << endl;
@@ -166,7 +170,7 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 
 	if(saveinfo){
 	  rname.push_back(lname);
-	  if(lcomment.size())rcomment.push_back(lcomment);
+	  if(lcomment.size()&& remove_comments==0)rcomment.push_back(lcomment);
 	  rlen.push_back(seqlen);
 	  if(saveseq)rseq.push_back(lseq);
 	  if(saveseq)rqual.push_back(lqual);
@@ -176,12 +180,12 @@ int readfastq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 	if(outfile.is_open()){
 	  if(otype!="same"){ // write fasta
 	    outfile << fa << lname ;
-	    if(lcomment.size()) outfile << " " << lcomment <<endl;
+	    if(lcomment.size() && remove_comments==0) outfile << " " << lcomment <<endl;
 	    else outfile << endl;
 	    outfile << lseq << endl;
 	  }else if(lqual.size()){
 	    outfile << fq << lname ;
-	    if(lcomment.size()) outfile << " " << lcomment <<endl;
+	    if(lcomment.size() && remove_comments==0) outfile << " " << lcomment <<endl;
 	    else outfile << endl;
 	    outfile << lseq << endl;
 	    outfile << "+" << endl << lqual << endl;
@@ -219,7 +223,7 @@ int readctglist(char* file)
   }
 }
 // ---------------------------------------- //
-int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="")
+int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="", int remove_comments=0)
 // ---------------------------------------- //
 { 
   igzstream infile(file);
@@ -272,13 +276,13 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 	    rname.push_back(lname);
 	    rlen.push_back(seqlen);
 	    if(saveseq)rseq.push_back(lseq);
-	    if(saveseq)if(lcomment.size())rcomment.push_back(lcomment);
+	    if(saveseq)if(lcomment.size()&& remove_comments==0)rcomment.push_back(lcomment);
 	  }
 
 	  //   ****** Write to file ******* //
 	  if(outfile.is_open()){
 	    outfile << fa << lname ;
-	    if(lcomment.size()) outfile << " " << lcomment <<endl;
+	    if(lcomment.size() && remove_comments==0) outfile << " " << lcomment <<endl;
 	    else outfile << endl;
 	    outfile << lseq << endl;
 	  }
@@ -322,13 +326,13 @@ int readfasta(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minl
 	  rname.push_back(lname);
 	  rlen.push_back(seqlen);
 	  if(saveseq)rseq.push_back(lseq);
-	  if(saveseq)if(lcomment.size())rcomment.push_back(lcomment);
+	  if(saveseq)if(lcomment.size()&& remove_comments==0)rcomment.push_back(lcomment);
 	}
 
 	//   ****** Write to file ******* //
 	if(outfile.is_open()){
 	  outfile << fa << lname ;
-	  if(lcomment.size()) outfile << " " << lcomment <<endl;
+	  if(lcomment.size() && remove_comments==0) outfile << " " << lcomment <<endl;
 	  else outfile << endl;
 	  outfile << lseq << endl;
 	}

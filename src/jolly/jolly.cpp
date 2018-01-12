@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
   int nlist=0;
   string otype="same";
   string list_to_avoid;
+  int remove_comments=0;
 
   int ipos=0;
   int epos=0;
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
   if(argc > 6) nlist=atoi(argv[6]);          
   if(argc > 7) ctg=argv[7];          // write only ctg=ctg
   if(argc > 8) list_to_avoid=argv[8];   // write only ctg=ctg
+  if(argc > 9) remove_comments=atoi(argv[9]);   // write only ctg=ctg
 
   // these not working yet in new version:
   //if(argc > 4) ipos=atoi(argv[4]);   // write only ctg from ipos base. if ipos==0 write from first base
@@ -51,7 +53,8 @@ int main(int argc, char *argv[])
   ss.imbue(std::locale(""));
   
   if(0)cout << argv[0] << " " << seqfile << " " << outname << " " 
-	    << otype << " " << minl << " " << maxl << " " << ctg << " " << nlist << endl; 
+	    << otype << " " << minl << " " << maxl << " " << ctg << " " << nlist 
+	    << " " << remove_comments << endl; 
 
 
   if (nlist > 0) writefile = 0;
@@ -72,9 +75,9 @@ int main(int argc, char *argv[])
   if(writefile)outfile.open(outname);
   
   if(!isfq){
-    err=readfasta(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,"same"); 
+    err=readfasta(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,"same",remove_comments); 
   }else{
-    err=readfastq(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,otype); 
+    err=readfastq(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,otype,remove_comments); 
   }
   if(writefile)outfile.close();
  

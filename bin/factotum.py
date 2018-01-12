@@ -16,6 +16,7 @@ outfile=''
 filename=''
 out_type=''
 avoid=''
+remove_comments=''
 nlist=0
 
 
@@ -30,7 +31,7 @@ def main():
    global write
    global nlist
    global avoid
-
+   global remove_comments
    write=0
 
    # location of handler:
@@ -67,6 +68,8 @@ def main():
                      help="Write in file only Seqs shorter than max_length")
    action.add_argument("--avoid", dest="avoid",
                     help="Write in file Seqs not matching list in this file")
+   action.add_argument("--nocomments", dest="remove_comments", action="store_true",
+                    help="Write fasta/fastq file with no comments in read name line")
 
    if len(sys.argv)==1:
        parser.print_help()
@@ -110,6 +113,12 @@ def main():
        printout+="\n Factotum: Writing only seqs not matching list  " + str(args.avoid);
        avoid=args.avoid
        preout+="avoid" +"_" + str(avoid) + "_"
+       write=1
+
+   if args.remove_comments:
+       printout+="\n Factotum: Writing seqs with no comments" ;
+       remove_comments=1
+       preout+="nocomment" + "_"
        write=1
 
    if args.scaffbreak:
@@ -161,10 +170,10 @@ def main():
       print(subprocess.check_output([exe, inputfile]).decode('utf-8').strip())
       
 
-   if args.seqname or args.min_length or args.max_length or args.fq2fa or args.nlist or args.avoid:
+   if args.seqname or args.min_length or args.max_length or args.fq2fa or args.nlist or args.avoid or args.remove_comments:
       exe=factotum_bin+"/jolly"
       print("\n",subprocess.check_output([exe, inputfile, outfile, out_type, str(min_length), 
-                                          str(max_length), str(nlist), seqname, avoid]).decode('utf-8').strip())
+                                          str(max_length), str(nlist), seqname, avoid, str(remove_comments)]).decode('utf-8').strip())
       print(subprocess.check_output(['rm', '-f', 'empty_*']).decode('utf-8').strip())
    print(' ')
 
