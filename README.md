@@ -28,6 +28,7 @@ A factotum Python script to handle genomic sequences: calculate sequences stats 
   
 ## Requirements
 Python 3 
+
 Tested with Python 3.6.1, gcc 4.9.2
 
 ## Instructions
