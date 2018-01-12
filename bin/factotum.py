@@ -97,59 +97,59 @@ def main():
    preout=''  # prefix for output file name
    if args.fq2fa:
       write=1
-      printout+="\n Factotum: Changing format: fasta from fastq";
+      printout+="\nFactotum: Changing format: fasta from fastq";
       fq2fa=args.fq2fa
       preout+="fq2fa_"
      
    if args.seqname is not None:
-       printout+="\n Factotum: Writing only seq named: " + args.seqname;
+       printout+="\nFactotum: Writing only seq named: " + args.seqname;
        seqname=args.seqname 
        preout+=seqname+"_"
        write=1
    if args.keepname is not None:
-       printout+="\n Factotum: Writing only seqs matching " + args.keepname;
+       printout+="\nFactotum: Writing only seqs matching " + args.keepname;
        keepname=args.keepname
        preout+=keepname+"_"
        write=1
    if args.rmname is not None:
-       printout+="\n Factotum: Writing only seqs not matching: " + args.rmname;
+       printout+="\nFactotum: Writing only seqs not matching: " + args.rmname;
        rmname=args.rmname
        preout+="removed_"+rmname+"_"
        write=1
  
 
    if args.min_length is not None:
-       printout+="\n Factotum: Writing only seq longer than "+str(args.min_length);
+       printout+="\nFactotum: Writing only seq longer than "+str(args.min_length);
        min_length=args.min_length
        preout+="min" + "_" + str(min_length) + "_"
        write=1
    if args.max_length is not None:
-       printout+="\n Factotum: Writing only seq shorter than " + str(args.max_length);
+       printout+="\nFactotum: Writing only seq shorter than " + str(args.max_length);
        max_length=args.max_length
        preout+="max" +"_" + str(max_length) + "_"
        write=1
 
    if args.avoid is not None:
-       printout+="\n Factotum: Writing only seqs not matching list  " + str(args.avoid);
+       printout+="\nFactotum: Writing only seqs not matching list  " + str(args.avoid);
        avoid=args.avoid
        preout+="avoid" +"_" + str(avoid) + "_"
        write=1
 
    if args.remove_comments:
-       printout+="\n Factotum: Writing seqs with no comments" ;
+       printout+="\nFactotum: Writing seqs with no comments" ;
        remove_comments=1
        preout+="nocomment" + "_"
        write=1
 
    if args.scaffbreak:
-      printout+="\n Factotum: Breaking scaffolds @ 3Ns";
+      printout+="\nFactotum: Breaking scaffolds @ 3Ns";
       preout+="ctgs"+"_"
       write=1
    if args.stats:
-      printout+='\n Factotum: Calculating stats'
+      printout+='\nFactotum: Calculating stats'
    if args.nlist:
       if args.nlist == 1: printout += '\n Factotum: Listing the longest seqs'
-      else:  printout+='\n Factotum: Listing the ' + str(args.nlist) + ' longest seqs'
+      else:  printout+='\nFactotum: Listing the ' + str(args.nlist) + ' longest seqs'
       printout+=' and the shortest one'
       nlist = args.nlist
       preout+="empty"+"_"
@@ -173,6 +173,7 @@ def main():
    ##################################
    if printout == '':
        print("\n *** Nothing to be done. ***\n")
+       parser.print_help()
        sys.exit(2)
    elif not args.quite: print(printout) #,'\n')
 
@@ -237,102 +238,5 @@ def filetype_(filename):
 
 
 
-
-
-
-#### My functions: only used with internal calcs: obsolete ####
-
-    '''
-    from Bio import SeqIO
-    from statistics import mean
-    read_ok=read();
-    if read_ok > 0:
-    sys.exit(2)
-    
-    if args.stat:
-    stats_ok=stats()
-    
-    # write to file
-    if args.write or args.fq2fa:
-    outfile=preout+outfile
-    write_ok=write()
-    if write_ok > 0:
-    sys.exit(2)
-    '''        
-
-def read():
-    global contigs
-    global filename
-
-    filename = os.path.basename(inputfile)
-    file_type = filetype_(filename) 
-    
-    # file extension not recognized:
-    if file_type == 1:
-       return 1
-    elif fq2fa and file_type=='fasta':
-       print("\n ******* Error: input file is already a fasta!  ******* \n")
-       return 2
-
-    contigs = (r for r in SeqIO.parse(inputfile, file_type))
- 
-    return 0
-
-
-def stats():
-    
-    lengths=[]
-    for r in contigs: 
-        lengths.append(len(r.seq))
-
-    lengths.sort(reverse=True)
-    
-    ctgs=len(lengths)
-    bases=sum(lengths)
-    mean_length=int(round(mean(lengths)))
-    longest=max(lengths)
-    
-    ii=0
-    done=0
-    t50=0
-    while done == 0: 
-        t50+=lengths[ii]
-        if t50 > bases*0.5: done=1
-        ii+=1
-    n_n50=ii
-    n50=lengths[n_n50-1]
-
-    print("Bases=", bases, "Contigs=", ctgs,
-          "mean=", mean_length, "longest=", longest, 
-          "n50=", n50, "n=", n_n50)
-    return 0
-
-
-def write():
-    output=open(outfile,"w")
-   
-    nn=0 
-    for r in contigs:  
-        pri=1
-        if min_length > 0 and len(r.seq) < min_length: pri=0
-        if max_length > 0 and len(r.seq) > max_length: pri=0
-        if ctgname is not None and ctgname not in r.id: 
-            pri=0
- 
-        if pri: 
-            SeqIO.write(r, output, out_type)
-            nn+=1
-        
-    output.close()
-
-    if nn > 0:
-        print(" Done:", nn, "contigs written to", outfile, "\n")
-    else:
-        print(" Sorry, could not find any contigs with your specifications\n")
-        
-    return 0
-
-
 if __name__ == "__main__":
-    main()
-
+	main()
