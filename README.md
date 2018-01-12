@@ -1,5 +1,24 @@
 # seq_factotum
-A factotum Python script to handle genomic sequences: calculate sequences stats (n50,..), select a sequence, get contigs from scaffolds, print fasta from fastq, select sequences whose name does/doesn't match a string, select only sequences longer/shorter than a value, etc..
+A factotum Python script to handle genomic sequences:
+
+1. calculate sequences stats (bases, seq_num, longest, mean, n50,..)
+
+2. list the longest N sequences and their lengths
+
+3. select and print out a single sequence
+
+4. print to file contigs from scaffolds and summary stats
+
+5. print a fasta from fastq
+
+6. select sequences whose name does/doesn't match a string
+
+7. select only sequences longer/shorter than a value
+
+8. select and printout all sequences not in a file.list
+
+9. print fasta/q after removing the comments from the sequence name lines
+
 
 ## Usage: 
     factotum.py -f full_path_to_file [options]
@@ -38,10 +57,18 @@ Download repository and install utilities/compile tools:
 	$ cd seq_factotum
 	$ ./install.sh
 	
-To run, add the factotum 'bin' folder location to your PATH, then run:
+To run, add the factotum 'bin' folder location to your PATH before running:
 
 	$ PATH=/full/path/to/seq_factotum/bin/:$PATH   
+
+Example: Check stats for a fasta:
+
 	$ factotum.py -f file.fasta --stats
+
+Example: Print to file only sequences longer than 10Kbp and shorter than 100kbp:
+
+	$ factotum.py -f file.fasta --min 10000 --max 100000
+
 
 	
 ## External packages
