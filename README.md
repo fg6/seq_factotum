@@ -24,16 +24,16 @@ A factotum Python script to handle genomic sequences:
   
     Action arguments::
 
-      --list NLIST        List this many seqs (from longest)
+      --list NLIST        List information for these many seqs (from longest) plus the shortest sequence
       --stats             Print stats: bases, seq_num, longest, mean, n50, n_n50
-      --break             Break scaffolds @>3Ns, print ctgs to file and print stats
+      --break             Break scaffolds @>3Ns, print ctgs to file and print stats for contigs
       --fq2fa             Write fasta from fastq
       --seq SEQNAME       Write in file only this Seq
       --keep KEEPNAME     Write in file only Seqs matching keepname
       --rm RMNAME         Write in file only Seqs not matching rmname
-      --min MIN_LENGTH    Write in file only Seqs longer than min_length
-      --max MAX_LENGTH    Write in file only Seqs shorter than max_length
-      --avoid AVOID.list  Write in file Seqs not matching list in this file
+      --min MIN_LENGTH    Write in file only Seqs longer than min_length (can be mixed with --max)
+      --max MAX_LENGTH    Write in file only Seqs shorter than max_length (can be mixed with --min)
+      --avoid AVOID.list  Write in file Seqs not matching list of sequences in file AVOID.list
       --nocomments        Write fasta/fastq file with no comments in read name line
  
   
