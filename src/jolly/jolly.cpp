@@ -72,11 +72,11 @@ int main(int argc, char *argv[])
   int err=1;
   if(writefile)outfile.open(outname);
   
-  if(!isfq){
-    err=readfasta(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,"same",remove_comments,keepname,rmname); 
-  }else{
-    err=readfastq(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,otype,remove_comments,keepname,rmname); 
-  }
+  //if(!isfq){
+    err=readfastaq(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,"same",remove_comments,keepname,rmname); 
+ // }else{
+ //   err=readfastq(argv[1],saveinfo,readseq,saveseq,minl,maxl,ctg,otype,remove_comments,keepname,rmname); 
+ // }
   if(writefile)outfile.close();
  
 

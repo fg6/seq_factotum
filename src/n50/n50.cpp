@@ -18,12 +18,12 @@ int main(int argc, char *argv[])
   int err=1;
 
   // File type	
-  int isfq=fasttype(argv[1]);
+  //int isfq=fasttype(argv[1]);
 
-  if(!isfq)
-     err=readfasta(argv[1],1); // save info (contig names and length) in vectors
-  else
-     err=readfastq(argv[1],1);
+  //if(!isfq)
+  err=readfastaq(argv[1],1); // save info (contig names and length) in vectors
+  //else
+    // err=readfastq(argv[1],1);
 
   if(!err){
     std::stringstream ss;
