@@ -74,7 +74,6 @@ int check_cuts(int seqlen,  string ctg="",  int minlen=0,  int maxlen=0, string 
       && ( maxlen==0 || seqlen < maxlen ) 
       && ( keep.size()==0  ||  ctg.find(keep)!=std::string::npos) 
       && ( rm.size()==0  ||  ctg.find(rm)==std::string::npos) ){
-
     return 1;
   }else{
     return 0;
@@ -89,12 +88,12 @@ int write_to_file(int isfq, string name, string seq, string comment="", string q
 
   int writefq=0;
 	  
-  if(otype!="same"){ 
+  if( otype == "same" ){ 
     writefq=isfq;
   }else if(isfq && !qual.empty()){
     writefq=1;
   }else{
-    cout << " Error! trying to write a fastq but quality string is empty! " << endl;
+    cout << " write: Error! trying to write a fastq but quality string is empty! " << endl;
     return 1;
   }
 
@@ -109,7 +108,7 @@ int write_to_file(int isfq, string name, string seq, string comment="", string q
 
   // Second Line: Sequence
   outfile << seq << endl;
-
+  
   // Fastq: Third and Fourth Lines: Qualities
   if(writefq)
     outfile << "+" << endl << qual << endl;
@@ -152,15 +151,8 @@ std::pair<string, string>  get_seq_name(string seq_name_line)
 int check_fast_type(string seq_name)
 // ---------------------------------------- //
 {
-  char fq[5]={"@"};
-  char fa[5]={">"};
-
-  if( seq_name.substr(0,1) == fa ) return 0 ;
-  else if (  seq_name.substr(0,1) == fq ) return 1;
-  else{
-    cout << "Error, cannot determine if file is fasta or fastq" << endl;
-    return 2;
-  }
+  
+  return seq_name.find_first_not_of(" ");
 }
 
 
@@ -181,14 +173,14 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
   rname.reserve(100000);
   if(saveseq) rseq.reserve(100000);
 
-
   string read;
   string lname;
   string lcomment="";   
   string lseq="";
   int seqlen=0;
   int seqlines=0;
-  
+  int first_char_idx;
+
   // Fastq:
   int quallen=0; 
   string lqual=""; // remains empty if fasta, otherwise is filled
@@ -199,12 +191,17 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
 
     // Check if fasta-or-fastq at the First Sequence-Name Line  (First Line)
     if(nseq==0){
-      isfq = check_fast_type( read );
-      if(isfq > 1) return 1;
+      first_char_idx = check_fast_type( read );
+      if( read.substr(first_char_idx, first_char_idx + 1) == fa ) isfq=0 ;
+      else if (  read.substr(first_char_idx, first_char_idx + 1) == fq ) isfq=1;
+      else{ cout <<first_char_idx << " " <<  read.substr(first_char_idx, first_char_idx + 1) << endl;
+	cout << "Error, cannot determine if file is fasta or fastq" << endl; return 1;}
+
     }
 
+    
     // Start With the Sequence-Name Line
-    if(read.substr(0,1)==fa){
+    if(read.substr(first_char_idx, first_char_idx + 1) == fa || read.substr(first_char_idx, first_char_idx + 1) == fq) { 
  
       // Number of Sequences
       nseq++;
@@ -230,6 +227,7 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
 
       // Re-initialize Sequence, Sequence Length and Qual length
       if(readseq)lseq="";
+      if(readseq)lqual="";
       seqlen=0;
       seqlines=0;
       quallen=0;
@@ -247,7 +245,10 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
 	quallen+=read.size();
       }
       if ( quallen != seqlen ) {
-	cout << " ERROR! seq length different from quality lenght!! " << endl;
+	cout << " ERROR! seq length different from quality lenght!! " 
+	     << " " << nseq << " " << seqlen << " " << quallen << " " 
+	     << seqlines 
+	     << endl;
 	return 1;
       }
 
@@ -268,6 +269,7 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
 	if(saveinfo) fill_vectors(lname,seqlen,lseq,lcomment,lqual);
 	
 	if(outfile.is_open()) write_to_file(isfq, lname, lseq, lcomment, lqual, otype);
+	                      
 
       }else{
 	// Did Not Passed Cuts: Excluded

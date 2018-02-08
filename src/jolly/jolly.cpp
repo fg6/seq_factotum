@@ -42,10 +42,10 @@ int main(int argc, char *argv[])
   if(argc > 5) maxl=atoi(argv[5]);  // write ctg < maxl
   if(argc > 6) nlist=atoi(argv[6]);          
   if(argc > 7) ctg=argv[7];          // write only ctg=ctg
-  if(argc > 8) keepname=argv[8];          // write only ctg=ctg
-  if(argc > 9) rmname=argv[9];          // write only ctg=ctg
-  if(argc > 10) list_to_avoid=argv[10];   // write only ctg=ctg
-  if(argc > 11) remove_comments=atoi(argv[11]);   // write only ctg=ctg
+  if(argc > 8) keepname=argv[8];          // write only ctg matching name
+  if(argc > 9) rmname=argv[9];          // write only ctg!=ctg
+  if(argc > 10) list_to_avoid=argv[10];   // write only ctg!=ctg_list
+  if(argc > 11) remove_comments=atoi(argv[11]);   // remove comments
 
   // these not working yet in new version:
   //if(argc > 4) ipos=atoi(argv[4]);   // write only ctg from ipos base. if ipos==0 write from first base
@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  if((fp = gzopen(argv[8],"r")) != NULL){ 
-    readctglist(argv[8]);  // list of ctg to avoid
+  if((fp = gzopen(argv[10],"r")) != NULL){ 
+    readctglist(argv[10]);  // list of ctg to avoid
     cout << " not writing ctgs/scaffolds from list " << argv[8] << endl;
   }
 

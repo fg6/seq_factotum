@@ -75,7 +75,7 @@ def main():
    action.add_argument("--max", dest="max_length", type=int,
                      help="Write in file only Seqs shorter than max_length")
    action.add_argument("--avoid", dest="avoid",
-                    help="Write in file Seqs not matching list in this file")
+                    help="Write in file Seqs not in list in this file")
    action.add_argument("--nocomments", dest="remove_comments", action="store_true",
                     help="Write fasta/fastq file with no comments in read name line")
 
