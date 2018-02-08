@@ -33,7 +33,7 @@ A factotum Python script to handle genomic sequences:
       --rm RMNAME         Write in file only Seqs not matching rmname
       --min MIN_LENGTH    Write in file only Seqs longer than min_length (can be mixed with --max)
       --max MAX_LENGTH    Write in file only Seqs shorter than max_length (can be mixed with --min)
-      --avoid AVOID.list  Write in file Seqs not matching list of sequences in file AVOID.list
+      --avoid AVOID.list  Write in file Seqs not in list of sequences in file AVOID.list
       --nocomments        Write fasta/fastq file with no comments in read name line
  
   

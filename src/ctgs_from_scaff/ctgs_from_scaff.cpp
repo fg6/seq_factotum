@@ -24,13 +24,13 @@ int main(int argc, char *argv[])
   int write=1;
 
   // Read file //
-  int isfq=fasttype(argv[1]);
-  if(!isfq){
-    err=readfasta(argv[1],saveinfo,readseq,saveseq); 
-  }else{
-    cout << " Error: scaffolds-breaking only available for fasta file! " << endl;
-    return 1;
-  }
+  //int isfq=fasttype(argv[1]);
+  //if(!isfq){
+  err=readfastaq(argv[1],saveinfo,readseq,saveseq); 
+  //}else{
+  //  cout << " Error: scaffolds-breaking only available for fasta file! " << endl;
+  //  return 1;
+  //}
   if(err) {
     cout << " Error while reading file "<< argv[1] << endl;
     return 1;
