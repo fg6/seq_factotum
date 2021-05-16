@@ -8,7 +8,7 @@ mysrcs=$myseq_handler/src
 mybin=$myseq_handler/bin
 
 # srcs to compile:
-srcs=( n50 ctgs_from_scaff jolly )
+srcs=( subs n50 ctgs_from_scaff jolly )
 
 cd $mysrcs
 mkdir -p mylibs
