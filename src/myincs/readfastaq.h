@@ -65,7 +65,8 @@ int fill_vectors(string name, int length, string seq="", string comment="", stri
 
 
 // ---------------------------------------- //
-int check_cuts(int seqlen,  string ctg="",  int minlen=0,  int maxlen=0, string selctg="", string keep="", string rm="")
+int check_cuts(int seqlen,  string ctg="",  int minlen=0,  int maxlen=0, string selctg="", 
+          string keep="", string rm="",const vector<string>& filtered_reads = vector<string>())
 // ---------------------------------------- //
 { 
   if( ( seqlen >= minlen ) 
@@ -74,7 +75,16 @@ int check_cuts(int seqlen,  string ctg="",  int minlen=0,  int maxlen=0, string 
       && ( maxlen==0 || seqlen < maxlen ) 
       && ( keep.size()==0  ||  ctg.find(keep)!=std::string::npos) 
       && ( rm.size()==0  ||  ctg.find(rm)==std::string::npos) ){
-    return 1;
+
+      if  (filtered_reads.size()>0) {
+          if (std::find(filtered_reads.begin(), filtered_reads.end(), ctg) != filtered_reads.end()){
+            return 1;
+          } else {
+            return 0;
+          }
+      }else{ 
+        return 1;
+      }
   }else{
     return 0;
   }
@@ -157,7 +167,9 @@ int check_fast_type(string seq_name)
 
 
 // ---------------------------------------- //
-int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int minlen=0, int maxlen=0, string selctg="", string otype="", int remove_comments=0, string keep="", string rm="")
+int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, 
+          int minlen=0, int maxlen=0, string selctg="", string otype="", 
+          int remove_comments=0, string keep="", string rm="",  const vector<string>& filtered_reads = vector<string>() )
 // ---------------------------------------- //
 { 
   igzstream infile(file);
@@ -185,8 +197,10 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
   int quallen=0; 
   string lqual=""; // remains empty if fasta, otherwise is filled
 
+
   int stop=1;
   while(stop){
+
     getline(infile,read);
 
     // Check if fasta-or-fastq at the First Sequence-Name Line  (First Line)
@@ -195,7 +209,7 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
       if( read.substr(first_char_idx, first_char_idx + 1) == fa ) isfq=0 ;
       else if (  read.substr(first_char_idx, first_char_idx + 1) == fq ) isfq=1;
       else{ cout <<first_char_idx << " " <<  read.substr(first_char_idx, first_char_idx + 1) << endl;
-	cout << "Error, cannot determine if file is fasta or fastq" << endl; return 1;}
+	     cout << "Error, cannot determine if file is fasta or fastq" << endl; return 1;}
 
     }
 
@@ -208,19 +222,19 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
 
       // Get Previous Sequence if Passes Cuts
       if(nseq>1){	
-	if(check_cuts(seqlen, lname, minlen, maxlen, selctg, keep, rm) ){  
-	  // Passed Cuts: Get Sequence
-	  
-	  if(saveinfo)
-	    fill_vectors(lname,seqlen,lseq,lcomment,lqual);  // lseq, lcomment and lqual should be empty if not explicitely used!
-	  
-	  if(outfile.is_open())
-	    write_to_file(isfq, lname, lseq, lcomment, lqual, otype);
+        	if(check_cuts(seqlen, lname, minlen, maxlen, selctg, keep, rm, filtered_reads) ){  
+        	  // Passed Cuts: Get Sequence
+        	  
+        	  if(saveinfo)
+        	    fill_vectors(lname,seqlen,lseq,lcomment,lqual);  // lseq, lcomment and lqual should be empty if not explicitely used!
+        	  
+        	  if(outfile.is_open())
+        	    write_to_file(isfq, lname, lseq, lcomment, lqual, otype);
 
-	}else{
-	  // Did Not Passed Cuts: Excluded
-	  excluded.push_back(seqlen);
-	}
+        	}else{
+        	  // Did Not Passed Cuts: Excluded
+        	  excluded.push_back(seqlen);
+        	}
       }
       
       // Start Processing New Sequence
@@ -245,11 +259,11 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
 	quallen+=read.size();
       }
       if ( quallen != seqlen ) {
-	cout << " ERROR! seq length different from quality lenght!! " 
-	     << " " << nseq << " " << seqlen << " " << quallen << " " 
-	     << seqlines 
-	     << endl;
-	return 1;
+          	cout << " ERROR! seq length different from quality lenght!! " 
+          	     << " " << nseq << " " << seqlen << " " << quallen << " " 
+          	     << seqlines 
+          	     << endl;
+	          return 1;
       }
 
     // Is not a Read-Name Line 
@@ -265,16 +279,15 @@ int readfastaq(char* file, int saveinfo=0, int readseq=0, int saveseq=0, int min
     // Get Last Sequence if Passes Cuts
     if(infile.eof()){ 
       if(check_cuts(seqlen, lname, minlen, maxlen, selctg, keep, rm) ){  
-	// Passed Cuts: Get Sequence
-	if(saveinfo) fill_vectors(lname,seqlen,lseq,lcomment,lqual);
-	
-	if(outfile.is_open()) write_to_file(isfq, lname, lseq, lcomment, lqual, otype);
-	                      
 
-      }else{
-	// Did Not Passed Cuts: Excluded
-	excluded.push_back(seqlen);
-      }
+      	 // Passed Cuts: Get Sequence
+      	if(saveinfo) fill_vectors(lname,seqlen,lseq,lcomment,lqual);
+      	
+          	if(outfile.is_open()) write_to_file(isfq, lname, lseq, lcomment, lqual, otype);  	                      
+        }else{
+  	       // Did Not Passed Cuts: Excluded
+  	       excluded.push_back(seqlen);
+        }
 
       // That Was The Last Sequence
       stop=0;
