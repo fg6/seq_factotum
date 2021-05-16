@@ -35,7 +35,7 @@ if [[ ! -d  mylibs/gzstream ]]  || [[ ! -f mylibs/gzstream/gzstream.o ]]; then
 	if [[ "$?" != 0 ]]; then echo " Error during gzstream compilation. Exiting now"; exit; fi
 	test=`make test | grep "O.K" | wc -l`
 
-	if [[ $test == 1 ]]; then echo " "1. gzstream installed; rm ../gzstream.tgz 
+	if [[ $test -eq 1 ]]; then echo " "1. gzstream installed; rm ../gzstream.tgz 
 	else  echo  " Gzstream test failed. Exiting now"; exit; fi
     fi
 fi
